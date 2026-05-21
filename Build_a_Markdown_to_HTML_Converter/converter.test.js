@@ -343,4 +343,9 @@ describe("convertMarkdown", () => {
 		expect(bq).not.toBeNull();
 		expect(bq.querySelector("strong em")).not.toBeNull();
 	});
+
+	it("should have only one script element in the HTML", () => {
+		const scripts = window.document.querySelectorAll("script");
+		expect(scripts.length).toBe(1);
+	});
 });
