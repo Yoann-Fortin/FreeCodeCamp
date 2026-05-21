@@ -47,4 +47,14 @@ describe("convertMarkdown", () => {
 		expect(h1).not.toBeNull();
 		expect(h1.textContent).toBe("title 1");
 	});
+
+	it("should not convert '# title 1' when preceded by other text", () => {
+		window.document.querySelector("#markdown-input").value = "some text # title 1";
+		expect(window.convertMarkdown()).toBe("some text # title 1");
+	});
+
+	it("should convert multiple h1 headings on separate lines", () => {
+		window.document.querySelector("#markdown-input").value = "# title 1\n# alternate title";
+		expect(window.convertMarkdown()).toBe("<h1>title 1</h1><h1>alternate title</h1>");
+	});
 });

@@ -1,6 +1,9 @@
 function convertMarkdown() {
 	const markdown = document.querySelector("#markdown-input").value;
-	return markdown.replace(/^(#{1})\s+(.+)$/gm, "<h1>$2</h1>");
+	return markdown
+		.split("\n")
+		.map((line) => line.replace(/^(#{1})\s+(.+)$/, "<h1>$2</h1>"))
+		.join("");
 }
 
 document.querySelector("#markdown-input").addEventListener("input", () => {
