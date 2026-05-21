@@ -34,4 +34,10 @@ describe("Drum Machine", () => {
 		expect(padBank).not.toBeNull();
 		expect(padBank.tagName).toBe("DIV");
 	});
+
+	it("should have a p element with id 'display' inside #drum-machine", () => {
+		const display = window.document.querySelector("#drum-machine #display");
+		expect(display).not.toBeNull();
+		expect(display.tagName).toBe("P");
+	});
 });
