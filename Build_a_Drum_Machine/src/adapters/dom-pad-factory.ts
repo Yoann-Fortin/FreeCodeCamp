@@ -1,8 +1,4 @@
-export interface PadConfig {
-	key: string;
-	name: string;
-	src: string;
-}
+import type { PadConfig } from "../domain/pad-config.ts";
 
 export function createPad(config: PadConfig): HTMLButtonElement {
 	const button = document.createElement("button");

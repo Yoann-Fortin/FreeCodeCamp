@@ -1,53 +1,22 @@
 "use strict";
 (() => {
-  // Build_a_Drum_Machine/src/command.ts
+  // Build_a_Drum_Machine/src/adapters/dom-audio-player.ts
   var AUDIO_START_TIME = 0;
-  var PlayPadCommand = class {
-    constructor(audio, name, onPlay) {
-      this.audio = audio;
-      this.name = name;
-      this.onPlay = onPlay;
+  var DomAudioPlayer = class {
+    constructor(root = document) {
+      this.root = root;
     }
-    execute() {
-      this.audio.currentTime = AUDIO_START_TIME;
-      this.audio.play();
-      this.onPlay(this.name);
-    }
-  };
-
-  // Build_a_Drum_Machine/src/command-history.ts
-  var CommandHistory = class {
-    constructor() {
-      this.history = [];
-    }
-    execute(command) {
-      command.execute();
-      this.history.push(command);
-    }
-    getHistory() {
-      return [...this.history];
-    }
-  };
-
-  // Build_a_Drum_Machine/src/event-bus.ts
-  var EventBus = class {
-    constructor() {
-      this.listeners = /* @__PURE__ */ new Map();
-    }
-    on(event, listener) {
-      const existing = this.listeners.get(event) ?? [];
-      existing.push(listener);
-      this.listeners.set(event, existing);
-    }
-    emit(event, data) {
-      const listeners = this.listeners.get(event) ?? [];
-      for (const listener of listeners) {
-        listener(data);
+    play(key) {
+      const audio = this.root.querySelector(`#${key}`);
+      if (!audio) {
+        return;
       }
+      audio.currentTime = AUDIO_START_TIME;
+      audio.play();
     }
   };
 
-  // Build_a_Drum_Machine/src/pad-factory.ts
+  // Build_a_Drum_Machine/src/adapters/dom-pad-factory.ts
   function createPad(config) {
     const button = document.createElement("button");
     button.type = "button";
@@ -68,6 +37,81 @@
     return configs.map((config) => createPad(config));
   }
 
+  // Build_a_Drum_Machine/src/domain/command.ts
+  var PlayPadCommand = class {
+    constructor(audioPlayer, key, name, onPlay) {
+      this.audioPlayer = audioPlayer;
+      this.key = key;
+      this.name = name;
+      this.onPlay = onPlay;
+    }
+    execute() {
+      this.audioPlayer.play(this.key);
+      this.onPlay(this.name);
+    }
+  };
+
+  // Build_a_Drum_Machine/src/domain/command-history.ts
+  var CommandHistory = class {
+    constructor() {
+      this.history = [];
+    }
+    execute(command) {
+      command.execute();
+      this.history.push(command);
+    }
+    getHistory() {
+      return [...this.history];
+    }
+  };
+
+  // Build_a_Drum_Machine/src/domain/event-bus.ts
+  var EventBus = class {
+    constructor() {
+      this.listeners = /* @__PURE__ */ new Map();
+    }
+    on(event, listener) {
+      const existing = this.listeners.get(event) ?? [];
+      existing.push(listener);
+      this.listeners.set(event, existing);
+    }
+    emit(event, data) {
+      const listeners = this.listeners.get(event) ?? [];
+      for (const listener of listeners) {
+        listener(data);
+      }
+    }
+  };
+
+  // Build_a_Drum_Machine/src/domain/drum-machine.ts
+  var DrumMachine = class {
+    constructor(pads, audioPlayer) {
+      this.pads = pads;
+      this.audioPlayer = audioPlayer;
+      this.commandHistory = new CommandHistory();
+      this.bus = new EventBus();
+    }
+    trigger(key) {
+      const pad = this.pads.find((p) => p.key === key);
+      if (!pad) {
+        return;
+      }
+      const command = new PlayPadCommand(
+        this.audioPlayer,
+        key,
+        pad.name,
+        (name) => this.bus.emit("pad-played", name)
+      );
+      this.commandHistory.execute(command);
+    }
+    hasKey(key) {
+      return this.pads.some((p) => p.key === key);
+    }
+    getHistory() {
+      return this.commandHistory.getHistory();
+    }
+  };
+
   // Build_a_Drum_Machine/src/script.ts
   var CDN = "https://cdn.freecodecamp.org/curriculum/drum";
   var PADS = [
@@ -81,48 +125,31 @@
     { key: "X", name: "Kick", src: `${CDN}/RP4_KICK_1.mp3` },
     { key: "C", name: "Closed-HH", src: `${CDN}/Cev_H2.mp3` }
   ];
-  var bus = new EventBus();
-  var history = new CommandHistory();
-  var display = document.querySelector("#display");
-  if (display) {
-    bus.on("pad-played", (name) => {
-      display.textContent = name;
-    });
-  }
   var padBank = document.querySelector("#pad-bank");
   if (padBank) {
     for (const button of createAllPads(PADS)) {
       padBank.appendChild(button);
     }
   }
-  function playPad(key) {
-    const audio = document.querySelector(`#${key}`);
-    if (!audio) {
-      return;
-    }
-    const pad = PADS.find((p) => p.key === key);
-    if (!pad) {
-      return;
-    }
-    const command = new PlayPadCommand(
-      audio,
-      pad.name,
-      (name) => bus.emit("pad-played", name)
-    );
-    history.execute(command);
+  var machine = new DrumMachine(PADS, new DomAudioPlayer());
+  var display = document.querySelector("#display");
+  if (display) {
+    machine.bus.on("pad-played", (name) => {
+      display.textContent = name;
+    });
   }
   for (const pad of document.querySelectorAll(".drum-pad")) {
     pad.addEventListener("click", () => {
       const key = pad.textContent?.trim();
       if (key) {
-        playPad(key);
+        machine.trigger(key);
       }
     });
   }
   document.addEventListener("keydown", (e) => {
     const key = e.key.toUpperCase();
-    if (PADS.some((p) => p.key === key)) {
-      playPad(key);
+    if (machine.hasKey(key)) {
+      machine.trigger(key);
     }
   });
 })();

@@ -1,27 +1,29 @@
-const AUDIO_START_TIME = 0;
+import type { AudioPlayer } from "../ports/audio-player.ts";
 
 export interface Command {
 	execute: () => void;
 }
 
 export class PlayPadCommand implements Command {
-	private readonly audio: HTMLAudioElement;
+	private readonly audioPlayer: AudioPlayer;
+	private readonly key: string;
 	private readonly name: string;
 	private readonly onPlay: (name: string) => void;
 
 	constructor(
-		audio: HTMLAudioElement,
+		audioPlayer: AudioPlayer,
+		key: string,
 		name: string,
 		onPlay: (name: string) => void,
 	) {
-		this.audio = audio;
+		this.audioPlayer = audioPlayer;
+		this.key = key;
 		this.name = name;
 		this.onPlay = onPlay;
 	}
 
 	execute(): void {
-		this.audio.currentTime = AUDIO_START_TIME;
-		this.audio.play();
+		this.audioPlayer.play(this.key);
 		this.onPlay(this.name);
 	}
 }

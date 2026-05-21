@@ -1,7 +1,7 @@
-import { PlayPadCommand } from "./command.ts";
-import { CommandHistory } from "./command-history.ts";
-import { EventBus } from "./event-bus.ts";
-import { createAllPads, type PadConfig } from "./pad-factory.ts";
+import { DomAudioPlayer } from "./adapters/dom-audio-player.ts";
+import { createAllPads } from "./adapters/dom-pad-factory.ts";
+import { DrumMachine } from "./domain/drum-machine.ts";
+import type { PadConfig } from "./domain/pad-config.ts";
 
 const CDN = "https://cdn.freecodecamp.org/curriculum/drum";
 
@@ -17,16 +17,6 @@ const PADS: PadConfig[] = [
 	{ key: "C", name: "Closed-HH", src: `${CDN}/Cev_H2.mp3` },
 ];
 
-const bus = new EventBus();
-const history = new CommandHistory();
-
-const display = document.querySelector("#display");
-if (display) {
-	bus.on("pad-played", (name: string) => {
-		display.textContent = name;
-	});
-}
-
 const padBank = document.querySelector("#pad-bank");
 if (padBank) {
 	for (const button of createAllPads(PADS)) {
@@ -34,33 +24,27 @@ if (padBank) {
 	}
 }
 
-function playPad(key: string): void {
-	const audio = document.querySelector(`#${key}`) as HTMLAudioElement | null;
-	if (!audio) {
-		return;
-	}
-	const pad = PADS.find((p) => p.key === key);
-	if (!pad) {
-		return;
-	}
-	const command = new PlayPadCommand(audio, pad.name, (name) =>
-		bus.emit("pad-played", name),
-	);
-	history.execute(command);
+const machine = new DrumMachine(PADS, new DomAudioPlayer());
+
+const display = document.querySelector("#display");
+if (display) {
+	machine.bus.on("pad-played", (name: string) => {
+		display.textContent = name;
+	});
 }
 
 for (const pad of document.querySelectorAll(".drum-pad")) {
 	pad.addEventListener("click", () => {
 		const key = pad.textContent?.trim();
 		if (key) {
-			playPad(key);
+			machine.trigger(key);
 		}
 	});
 }
 
 document.addEventListener("keydown", (e: KeyboardEvent) => {
 	const key = e.key.toUpperCase();
-	if (PADS.some((p) => p.key === key)) {
-		playPad(key);
+	if (machine.hasKey(key)) {
+		machine.trigger(key);
 	}
 });
