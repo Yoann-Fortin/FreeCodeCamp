@@ -28,4 +28,10 @@ describe("Drum Machine", () => {
 		expect(drumMachine).not.toBeNull();
 		expect(drumMachine.tagName).toBe("DIV");
 	});
+
+	it("should have a div with id 'pad-bank' inside #drum-machine", () => {
+		const padBank = window.document.querySelector("#drum-machine #pad-bank");
+		expect(padBank).not.toBeNull();
+		expect(padBank.tagName).toBe("DIV");
+	});
 });
