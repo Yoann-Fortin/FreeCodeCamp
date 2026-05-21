@@ -166,4 +166,56 @@ describe("convertMarkdown", () => {
 		window.document.querySelector("#markdown-input").value = "__this is bold__\n__this is also bold__";
 		expect(window.convertMarkdown()).toBe("<strong>this is bold</strong><strong>this is also bold</strong>");
 	});
+
+	it("should convert '*this is italic*' to '<em>this is italic</em>'", () => {
+		window.document.querySelector("#markdown-input").value = "*this is italic*";
+		expect(window.convertMarkdown()).toBe("<em>this is italic</em>");
+	});
+
+	it("should display '<em>this is italic</em>' inside #html-output", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "*this is italic*";
+		input.dispatchEvent(new window.Event("input"));
+		expect(window.document.querySelector("#html-output").textContent).toBe("<em>this is italic</em>");
+	});
+
+	it("should render an em element inside #preview when input is '*this is italic*'", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "*this is italic*";
+		input.dispatchEvent(new window.Event("input"));
+		const em = window.document.querySelector("#preview em");
+		expect(em).not.toBeNull();
+		expect(em.textContent).toBe("this is italic");
+	});
+
+	it("should convert multiple *italic* on separate lines", () => {
+		window.document.querySelector("#markdown-input").value = "*this is italic*\n*this is also italic*";
+		expect(window.convertMarkdown()).toBe("<em>this is italic</em><em>this is also italic</em>");
+	});
+
+	it("should convert '_this is italic_' to '<em>this is italic</em>'", () => {
+		window.document.querySelector("#markdown-input").value = "_this is italic_";
+		expect(window.convertMarkdown()).toBe("<em>this is italic</em>");
+	});
+
+	it("should display '<em>this is italic</em>' inside #html-output for '_this is italic_'", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "_this is italic_";
+		input.dispatchEvent(new window.Event("input"));
+		expect(window.document.querySelector("#html-output").textContent).toBe("<em>this is italic</em>");
+	});
+
+	it("should render an em element inside #preview when input is '_this is italic_'", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "_this is italic_";
+		input.dispatchEvent(new window.Event("input"));
+		const em = window.document.querySelector("#preview em");
+		expect(em).not.toBeNull();
+		expect(em.textContent).toBe("this is italic");
+	});
+
+	it("should convert multiple _italic_ on separate lines", () => {
+		window.document.querySelector("#markdown-input").value = "_this is italic_\n_this is also italic_";
+		expect(window.convertMarkdown()).toBe("<em>this is italic</em><em>this is also italic</em>");
+	});
 });

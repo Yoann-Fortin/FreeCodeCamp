@@ -9,7 +9,9 @@ function convertMarkdown() {
 					return `<h${level}>${text}</h${level}>`;
 				})
 				.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-				.replace(/__(.+?)__/g, "<strong>$1</strong>"),
+				.replace(/__(.+?)__/g, "<strong>$1</strong>")
+				.replace(/\*(.+?)\*/g, "<em>$1</em>")
+				.replace(/_(.+?)_/g, "<em>$1</em>"),
 		)
 		.join("");
 }
