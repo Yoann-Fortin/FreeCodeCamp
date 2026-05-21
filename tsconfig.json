@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+		"target": "es2020",
+		"module": "commonjs",
+		"rootDir": "./Build_a_Markdown_to_HTML_Converter/src",
+		"outDir": "./Build_a_Markdown_to_HTML_Converter",
+		"lib": ["es2020", "dom"],
+		"strict": true,
+		"noUncheckedIndexedAccess": true,
+		"sourceMap": false,
+		"declaration": false,
+		"skipLibCheck": true
+	},
+	"include": ["Build_a_Markdown_to_HTML_Converter/src/**/*.ts"],
+	"exclude": ["node_modules"]
+}
