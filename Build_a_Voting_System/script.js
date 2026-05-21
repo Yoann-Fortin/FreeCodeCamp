@@ -23,6 +23,7 @@ function vote(option, voterId) {
 	return `Voter ${voterId} voted for "${option}".`;
 }
 
+// biome-ignore lint/correctness/noUnusedVariables: called by FreeCodeCamp test runner
 function displayResults() {
 	const lines = ["Poll Results:"];
 	for (const [option, voters] of poll) {
