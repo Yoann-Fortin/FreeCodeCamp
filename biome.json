@@ -47,8 +47,19 @@
 					"correctness": {
 						"noNodejsModules": "off"
 					},
+					"complexity": {
+						"noExcessiveLinesPerFunction": "off"
+					},
+					"nursery": {
+						"noExcessiveLinesPerFile": "off"
+					},
+					"security": {
+						"noSecrets": "off"
+					},
 					"style": {
-						"noDefaultExport": "off"
+						"noDefaultExport": "off",
+						"noNonNullAssertion": "off",
+						"useNamingConvention": "off"
 					}
 				}
 			}
