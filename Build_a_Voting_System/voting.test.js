@@ -25,4 +25,16 @@ describe("Voting System", () => {
 	it("should have a poll variable initialized to a Map", () => {
 		expect(ctx.poll).toBeInstanceOf(Map);
 	});
+
+	it("should have an addOption function", () => {
+		expect(typeof ctx.addOption).toBe("function");
+	});
+
+	it("should have a vote function", () => {
+		expect(typeof ctx.vote).toBe("function");
+	});
+
+	it("should have a displayResults function", () => {
+		expect(typeof ctx.displayResults).toBe("function");
+	});
 });
