@@ -1,0 +1,1 @@
+var poll = new Map();
