@@ -40,4 +40,29 @@ describe("Drum Machine", () => {
 		expect(display).not.toBeNull();
 		expect(display.tagName).toBe("P");
 	});
+
+	it("should have nine drum-pad buttons inside #pad-bank", () => {
+		const pads = window.document.querySelectorAll("#pad-bank .drum-pad");
+		expect(pads.length).toBe(9);
+		for (const pad of pads) {
+			expect(pad.tagName).toBe("BUTTON");
+		}
+	});
+
+	it("should have drum pads with letters Q, W, E, A, S, D, Z, X, C in order", () => {
+		const pads = window.document.querySelectorAll("#pad-bank .drum-pad");
+		const expected = ["Q", "W", "E", "A", "S", "D", "Z", "X", "C"];
+		const letters = [...pads].map((pad) => pad.textContent.trim());
+		expect(letters).toEqual(expected);
+	});
+
+	it("should have an audio element with class 'clip' inside each drum-pad", () => {
+		const pads = window.document.querySelectorAll("#pad-bank .drum-pad");
+		for (const pad of pads) {
+			const audio = pad.querySelector("audio.clip");
+			expect(audio).not.toBeNull();
+			expect(audio.hasAttribute("src")).toBe(true);
+			expect(audio.id).toBe(pad.textContent.trim());
+		}
+	});
 });
