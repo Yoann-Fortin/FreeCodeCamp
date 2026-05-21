@@ -38,6 +38,43 @@ describe("Voting System", () => {
 		expect(typeof ctx.displayResults).toBe("function");
 	});
 
+	describe("vote", () => {
+		it("should return error when option does not exist", () => {
+			expect(ctx.vote("Nigeria", "traveler2")).toBe('Option "Nigeria" does not exist.');
+		});
+
+		it("should register a vote and return confirmation", () => {
+			ctx.addOption("Malaysia");
+			expect(ctx.vote("Malaysia", "traveler1")).toBe('Voter traveler1 voted for "Malaysia".');
+		});
+
+		it("should update the Set of voters for an option", () => {
+			ctx.addOption("Malaysia");
+			ctx.vote("Malaysia", "traveler1");
+			expect(ctx.poll.get("Malaysia").has("traveler1")).toBe(true);
+		});
+
+		it("should prevent duplicate voting", () => {
+			ctx.addOption("Algeria");
+			ctx.vote("Algeria", "traveler1");
+			expect(ctx.vote("Algeria", "traveler1")).toBe('Voter traveler1 has already voted for "Algeria".');
+		});
+
+		it("should not increase Set size on duplicate vote", () => {
+			ctx.addOption("Algeria");
+			ctx.vote("Algeria", "traveler1");
+			ctx.vote("Algeria", "traveler1");
+			expect(ctx.poll.get("Algeria").size).toBe(1);
+		});
+
+		it("should allow multiple voters on the same option", () => {
+			ctx.addOption("Turkey");
+			ctx.vote("Turkey", "traveler1");
+			ctx.vote("Turkey", "traveler2");
+			expect(ctx.poll.get("Turkey").size).toBe(2);
+		});
+	});
+
 	describe("addOption", () => {
 		it("should add a new option and return confirmation message", () => {
 			expect(ctx.addOption("Egypt")).toBe('Option "Egypt" added to the poll.');

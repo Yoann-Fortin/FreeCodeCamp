@@ -12,6 +12,15 @@ function addOption(option) {
 }
 
 function vote(option, voterId) {
+	if (!poll.has(option)) {
+		return `Option "${option}" does not exist.`;
+	}
+	var voters = poll.get(option);
+	if (voters.has(voterId)) {
+		return `Voter ${voterId} has already voted for "${option}".`;
+	}
+	voters.add(voterId);
+	return `Voter ${voterId} voted for "${option}".`;
 }
 
 function displayResults() {
