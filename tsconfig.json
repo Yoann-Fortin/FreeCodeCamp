@@ -1,14 +1,18 @@
 {
 	"compilerOptions": {
 		"target": "es2020",
-		"module": "commonjs",
+		"module": "esnext",
+		"moduleResolution": "bundler",
 		"rootDir": "./Build_a_Markdown_to_HTML_Converter/src",
-		"outDir": "./Build_a_Markdown_to_HTML_Converter",
+		"outDir": "./Build_a_Markdown_to_HTML_Converter/dist",
 		"lib": ["es2020", "dom"],
 		"strict": true,
 		"noUncheckedIndexedAccess": true,
 		"sourceMap": false,
 		"declaration": false,
+		"isolatedModules": true,
+		"allowImportingTsExtensions": true,
+		"noEmit": true,
 		"skipLibCheck": true
 	},
 	"include": ["Build_a_Markdown_to_HTML_Converter/src/**/*.ts"],

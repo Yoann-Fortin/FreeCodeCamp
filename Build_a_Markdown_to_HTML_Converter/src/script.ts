@@ -1,27 +1,31 @@
+import { BlockquoteRule } from "./rules/blockquote.ts";
+import { BoldRule } from "./rules/bold.ts";
+import { HeadingRule } from "./rules/heading.ts";
+import { ImageRule } from "./rules/image.ts";
+import { ItalicRule } from "./rules/italic.ts";
+import { LinkRule } from "./rules/link.ts";
+import type { ConversionRule } from "./rules/rule.ts";
+
+const rules: ConversionRule[] = [
+	new HeadingRule(),
+	new ImageRule(),
+	new LinkRule(),
+	new BlockquoteRule(),
+	new BoldRule(),
+	new ItalicRule(),
+];
+
 function convertMarkdown(): string {
 	const input = document.querySelector<HTMLTextAreaElement>("#markdown-input");
 	if (!input) return "";
-	const markdown = input.value;
-	return markdown
+	return input.value
 		.split("\n")
 		.map((line: string): string =>
-			line
-				.replace(/^(#{1,6})\s+(.+)$/, (_: string, hashes: string, text: string): string => {
-					const level = hashes.length;
-					return `<h${level}>${text}</h${level}>`;
-				})
-				.replace(/!\[(.+?)\]\((.+?)\)/g, '<img alt="$1" src="$2">')
-				.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
-				.replace(/^>\s+(.+)$/, "<blockquote>$1</blockquote>")
-				.replace(/\*\*(.+)\*\*/g, "<strong>$1</strong>")
-				.replace(/__(.+?)__/g, "<strong>$1</strong>")
-				.replace(/\*(.+?)\*/g, "<em>$1</em>")
-				.replace(/_(.+?)_/g, "<em>$1</em>"),
+			rules.reduce((result, rule) => rule.apply(result), line),
 		)
 		.join("");
 }
 
-// expose on window for FreeCodeCamp tests
 window.convertMarkdown = convertMarkdown;
 
 const markdownInput = document.querySelector<HTMLTextAreaElement>("#markdown-input");

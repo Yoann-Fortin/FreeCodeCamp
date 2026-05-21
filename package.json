@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"build": "tsc",
+		"build": "tsc --noEmit && esbuild Build_a_Markdown_to_HTML_Converter/src/script.ts --bundle --outfile=Build_a_Markdown_to_HTML_Converter/script.js",
 		"test": "vitest"
 	},
 	"repository": {
@@ -22,6 +22,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.15",
 		"@types/jsdom": "^28.0.3",
+		"esbuild": "^0.28.0",
 		"jsdom": "^29.1.1",
 		"typescript": "^6.0.3",
 		"vitest": "^4.1.7"
