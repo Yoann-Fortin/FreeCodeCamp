@@ -31,4 +31,20 @@ describe("convertMarkdown", () => {
 		window.document.querySelector("#markdown-input").value = "# title 1";
 		expect(window.convertMarkdown()).toBe("<h1>title 1</h1>");
 	});
+
+	it("should display '<h1>title 1</h1>' inside #html-output when input is '# title 1'", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "# title 1";
+		input.dispatchEvent(new window.Event("input"));
+		expect(window.document.querySelector("#html-output").textContent).toBe("<h1>title 1</h1>");
+	});
+
+	it("should render an h1 element inside #preview when input is '# title 1'", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "# title 1";
+		input.dispatchEvent(new window.Event("input"));
+		const h1 = window.document.querySelector("#preview h1");
+		expect(h1).not.toBeNull();
+		expect(h1.textContent).toBe("title 1");
+	});
 });
