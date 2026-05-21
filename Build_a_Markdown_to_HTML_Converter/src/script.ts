@@ -1,11 +1,16 @@
-import { ConverterBuilder } from "./converter-builder.ts";
-import { BlockquoteRule } from "./rules/blockquote.ts";
-import { AsteriskBoldRule, UnderscoreBoldRule } from "./rules/bold.ts";
-import { CompositeRule } from "./rules/composite.ts";
-import { HeadingRule } from "./rules/heading.ts";
-import { ImageRule } from "./rules/image.ts";
-import { AsteriskItalicRule, UnderscoreItalicRule } from "./rules/italic.ts";
-import { LinkRule } from "./rules/link.ts";
+import { DomHtmlRenderer } from "./adapters/dom-html-renderer.ts";
+import { DomMarkdownReader } from "./adapters/dom-markdown-reader.ts";
+import { ConverterBuilder } from "./domain/converter-builder.ts";
+import { BlockquoteRule } from "./domain/rules/blockquote.ts";
+import { AsteriskBoldRule, UnderscoreBoldRule } from "./domain/rules/bold.ts";
+import { CompositeRule } from "./domain/rules/composite.ts";
+import { HeadingRule } from "./domain/rules/heading.ts";
+import { ImageRule } from "./domain/rules/image.ts";
+import { AsteriskItalicRule, UnderscoreItalicRule } from "./domain/rules/italic.ts";
+import { LinkRule } from "./domain/rules/link.ts";
+
+const reader = new DomMarkdownReader("#markdown-input");
+const renderer = new DomHtmlRenderer("#html-output", "#preview");
 
 const convert = new ConverterBuilder()
 	.withRule(new HeadingRule())
@@ -17,22 +22,16 @@ const convert = new ConverterBuilder()
 	.build();
 
 function convertMarkdown(): string {
-	const input = document.querySelector<HTMLTextAreaElement>("#markdown-input");
-	if (!input) return "";
-	return convert(input.value);
+	return convert(reader.read());
 }
 
 window.convertMarkdown = convertMarkdown;
 
-const markdownInput = document.querySelector<HTMLTextAreaElement>("#markdown-input");
+const markdownInput = document.querySelector("#markdown-input");
 if (markdownInput) {
 	markdownInput.addEventListener("input", (): void => {
 		const html = convertMarkdown();
-		const htmlOutput = document.querySelector("#html-output");
-		if (htmlOutput) htmlOutput.textContent = html;
-		const parser = new DOMParser();
-		const doc = parser.parseFromString(html, "text/html");
-		const preview = document.querySelector("#preview");
-		if (preview) preview.replaceChildren(...doc.body.childNodes);
+		renderer.renderRaw(html);
+		renderer.renderPreview(html);
 	});
 }
