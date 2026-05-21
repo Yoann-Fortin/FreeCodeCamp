@@ -1,5 +1,23 @@
 "use strict";
 (() => {
+  // Build_a_Drum_Machine/src/event-bus.ts
+  var EventBus = class {
+    constructor() {
+      this.listeners = /* @__PURE__ */ new Map();
+    }
+    on(event, listener) {
+      const existing = this.listeners.get(event) ?? [];
+      existing.push(listener);
+      this.listeners.set(event, existing);
+    }
+    emit(event, data) {
+      const listeners = this.listeners.get(event) ?? [];
+      for (const listener of listeners) {
+        listener(data);
+      }
+    }
+  };
+
   // Build_a_Drum_Machine/src/pad-factory.ts
   var PadFactory = class _PadFactory {
     static create(config) {
@@ -36,6 +54,13 @@
     { key: "X", name: "Kick", src: `${CDN}/RP4_KICK_1.mp3` },
     { key: "C", name: "Closed-HH", src: `${CDN}/Cev_H2.mp3` }
   ];
+  var bus = new EventBus();
+  var display = document.getElementById("display");
+  if (display) {
+    bus.on("pad-played", (name) => {
+      display.textContent = name;
+    });
+  }
   var padBank = document.getElementById("pad-bank");
   if (padBank) {
     for (const button of PadFactory.createAll(PADS)) {
@@ -49,8 +74,7 @@
     audio.play();
     const pad = PADS.find((p) => p.key === key);
     if (pad) {
-      const display = document.getElementById("display");
-      if (display) display.textContent = pad.name;
+      bus.emit("pad-played", pad.name);
     }
   }
   document.querySelectorAll(".drum-pad").forEach((pad) => {

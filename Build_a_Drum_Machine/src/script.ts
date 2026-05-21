@@ -1,3 +1,4 @@
+import { EventBus } from "./event-bus.ts";
 import { type PadConfig, PadFactory } from "./pad-factory.ts";
 
 const CDN = "https://cdn.freecodecamp.org/curriculum/drum";
@@ -14,6 +15,15 @@ const PADS: PadConfig[] = [
 	{ key: "C", name: "Closed-HH", src: `${CDN}/Cev_H2.mp3` },
 ];
 
+const bus = new EventBus();
+
+const display = document.getElementById("display");
+if (display) {
+	bus.on("pad-played", (name: string) => {
+		display.textContent = name;
+	});
+}
+
 const padBank = document.getElementById("pad-bank");
 if (padBank) {
 	for (const button of PadFactory.createAll(PADS)) {
@@ -28,8 +38,7 @@ function playPad(key: string): void {
 	audio.play();
 	const pad = PADS.find((p) => p.key === key);
 	if (pad) {
-		const display = document.getElementById("display");
-		if (display) display.textContent = pad.name;
+		bus.emit("pad-played", pad.name);
 	}
 }
 
