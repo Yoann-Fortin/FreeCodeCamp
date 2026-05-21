@@ -88,4 +88,35 @@ describe("convertMarkdown", () => {
 		window.document.querySelector("#markdown-input").value = "## title 2\n## title 2 alt";
 		expect(window.convertMarkdown()).toBe("<h2>title 2</h2><h2>title 2 alt</h2>");
 	});
+
+	it("should convert '### title 3' to '<h3>title 3</h3>'", () => {
+		window.document.querySelector("#markdown-input").value = "### title 3";
+		expect(window.convertMarkdown()).toBe("<h3>title 3</h3>");
+	});
+
+	it("should display '<h3>title 3</h3>' inside #html-output when input is '### title 3'", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "### title 3";
+		input.dispatchEvent(new window.Event("input"));
+		expect(window.document.querySelector("#html-output").textContent).toBe("<h3>title 3</h3>");
+	});
+
+	it("should render an h3 element inside #preview when input is '### title 3'", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "### title 3";
+		input.dispatchEvent(new window.Event("input"));
+		const h3 = window.document.querySelector("#preview h3");
+		expect(h3).not.toBeNull();
+		expect(h3.textContent).toBe("title 3");
+	});
+
+	it("should not convert '### title 3' when preceded by other text", () => {
+		window.document.querySelector("#markdown-input").value = "some text ### title 3";
+		expect(window.convertMarkdown()).toBe("some text ### title 3");
+	});
+
+	it("should convert multiple h3 headings on separate lines", () => {
+		window.document.querySelector("#markdown-input").value = "### title 3\n### third title";
+		expect(window.convertMarkdown()).toBe("<h3>title 3</h3><h3>third title</h3>");
+	});
 });
