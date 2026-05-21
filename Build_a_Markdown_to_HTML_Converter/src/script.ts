@@ -1,3 +1,4 @@
+import { ConverterBuilder } from "./converter-builder.ts";
 import { BlockquoteRule } from "./rules/blockquote.ts";
 import { AsteriskBoldRule, UnderscoreBoldRule } from "./rules/bold.ts";
 import { CompositeRule } from "./rules/composite.ts";
@@ -5,29 +6,20 @@ import { HeadingRule } from "./rules/heading.ts";
 import { ImageRule } from "./rules/image.ts";
 import { AsteriskItalicRule, UnderscoreItalicRule } from "./rules/italic.ts";
 import { LinkRule } from "./rules/link.ts";
-import type { ConversionRule } from "./rules/rule.ts";
 
-const boldRule = new CompositeRule(new AsteriskBoldRule(), new UnderscoreBoldRule());
-const italicRule = new CompositeRule(new AsteriskItalicRule(), new UnderscoreItalicRule());
-
-const rules: ConversionRule[] = [
-	new HeadingRule(),
-	new ImageRule(),
-	new LinkRule(),
-	new BlockquoteRule(),
-	boldRule,
-	italicRule,
-];
+const convert = new ConverterBuilder()
+	.withRule(new HeadingRule())
+	.withRule(new ImageRule())
+	.withRule(new LinkRule())
+	.withRule(new BlockquoteRule())
+	.withRule(new CompositeRule(new AsteriskBoldRule(), new UnderscoreBoldRule()))
+	.withRule(new CompositeRule(new AsteriskItalicRule(), new UnderscoreItalicRule()))
+	.build();
 
 function convertMarkdown(): string {
 	const input = document.querySelector<HTMLTextAreaElement>("#markdown-input");
 	if (!input) return "";
-	return input.value
-		.split("\n")
-		.map((line: string): string =>
-			rules.reduce((result, rule) => rule.apply(result), line),
-		)
-		.join("");
+	return convert(input.value);
 }
 
 window.convertMarkdown = convertMarkdown;

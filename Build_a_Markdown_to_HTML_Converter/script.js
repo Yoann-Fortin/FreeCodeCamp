@@ -1,5 +1,22 @@
 "use strict";
 (() => {
+  // Build_a_Markdown_to_HTML_Converter/src/converter-builder.ts
+  var ConverterBuilder = class {
+    constructor() {
+      this.rules = [];
+    }
+    withRule(rule) {
+      this.rules.push(rule);
+      return this;
+    }
+    build() {
+      const rules = [...this.rules];
+      return (input) => input.split("\n").map(
+        (line) => rules.reduce((result, rule) => rule.apply(result), line)
+      ).join("");
+    }
+  };
+
   // Build_a_Markdown_to_HTML_Converter/src/rules/rule.ts
   var RegexRule = class {
     apply(line) {
@@ -34,8 +51,8 @@
 
   // Build_a_Markdown_to_HTML_Converter/src/rules/composite.ts
   var CompositeRule = class {
-    constructor(...rules2) {
-      this.rules = rules2;
+    constructor(...rules) {
+      this.rules = rules;
     }
     apply(line) {
       return this.rules.reduce((result, rule) => rule.apply(result), line);
@@ -87,22 +104,11 @@
   };
 
   // Build_a_Markdown_to_HTML_Converter/src/script.ts
-  var boldRule = new CompositeRule(new AsteriskBoldRule(), new UnderscoreBoldRule());
-  var italicRule = new CompositeRule(new AsteriskItalicRule(), new UnderscoreItalicRule());
-  var rules = [
-    new HeadingRule(),
-    new ImageRule(),
-    new LinkRule(),
-    new BlockquoteRule(),
-    boldRule,
-    italicRule
-  ];
+  var convert = new ConverterBuilder().withRule(new HeadingRule()).withRule(new ImageRule()).withRule(new LinkRule()).withRule(new BlockquoteRule()).withRule(new CompositeRule(new AsteriskBoldRule(), new UnderscoreBoldRule())).withRule(new CompositeRule(new AsteriskItalicRule(), new UnderscoreItalicRule())).build();
   function convertMarkdown() {
     const input = document.querySelector("#markdown-input");
     if (!input) return "";
-    return input.value.split("\n").map(
-      (line) => rules.reduce((result, rule) => rule.apply(result), line)
-    ).join("");
+    return convert(input.value);
   }
   window.convertMarkdown = convertMarkdown;
   var markdownInput = document.querySelector("#markdown-input");
