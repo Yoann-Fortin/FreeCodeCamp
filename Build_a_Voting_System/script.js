@@ -1,4 +1,4 @@
-var poll = new Map();
+const poll = new Map();
 
 function addOption(option) {
 	if (!option) {
@@ -15,7 +15,7 @@ function vote(option, voterId) {
 	if (!poll.has(option)) {
 		return `Option "${option}" does not exist.`;
 	}
-	var voters = poll.get(option);
+	const voters = poll.get(option);
 	if (voters.has(voterId)) {
 		return `Voter ${voterId} has already voted for "${option}".`;
 	}
@@ -24,4 +24,16 @@ function vote(option, voterId) {
 }
 
 function displayResults() {
+	const lines = ["Poll Results:"];
+	for (const [option, voters] of poll) {
+		lines.push(`${option}: ${voters.size} votes`);
+	}
+	return lines.join("\n");
 }
+
+addOption("Turkey");
+addOption("Morocco");
+addOption("Spain");
+vote("Turkey", "traveler1");
+vote("Turkey", "traveler2");
+vote("Morocco", "traveler3");

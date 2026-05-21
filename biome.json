@@ -6,7 +6,8 @@
 		"useIgnoreFile": true
 	},
 	"files": {
-		"ignoreUnknown": false
+		"ignoreUnknown": false,
+		"includes": ["**", "!**/Build_*/script.js"]
 	},
 	"formatter": {
 		"enabled": true,
@@ -41,14 +42,26 @@
 	},
 	"overrides": [
 		{
-			"includes": ["**/*.test.js", "**/*.config.js"],
+			"includes": ["**/*.test.js", "**/*.test.ts", "**/*.config.js"],
 			"linter": {
 				"rules": {
+					"complexity": {
+						"noExcessiveLinesPerFunction": "off"
+					},
 					"correctness": {
 						"noNodejsModules": "off"
 					},
+					"nursery": {
+						"noExcessiveLinesPerFile": "off"
+					},
+					"security": {
+						"noSecrets": "off"
+					},
 					"style": {
-						"noDefaultExport": "off"
+						"noDefaultExport": "off",
+						"noMagicNumbers": "off",
+						"noNonNullAssertion": "off",
+						"useNamingConvention": "off"
 					}
 				}
 			}

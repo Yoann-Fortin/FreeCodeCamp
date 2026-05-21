@@ -1,18 +1,19 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createContext, runInNewContext } from "node:vm";
+import { createContext, Script } from "node:vm";
 import { beforeEach, describe, expect, it } from "vitest";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const scriptFile = resolve(__dirname, "script.js");
 
 function loadScript() {
+	const scriptContent = readFileSync(scriptFile, "utf-8");
+	const wrapped = `(function() {\n${scriptContent}\nreturn { poll, addOption, vote, displayResults };\n})()`;
 	const sandbox = { Map, Set };
 	createContext(sandbox);
-	const scriptContent = readFileSync(scriptFile, "utf-8");
-	runInNewContext(scriptContent, sandbox);
-	return sandbox;
+	const script = new Script(wrapped);
+	return script.runInNewContext(sandbox);
 }
 
 describe("Voting System", () => {
@@ -38,14 +39,56 @@ describe("Voting System", () => {
 		expect(typeof ctx.displayResults).toBe("function");
 	});
 
+	describe("displayResults", () => {
+		it("should return formatted results", () => {
+			ctx.addOption("Turkey");
+			ctx.addOption("Morocco");
+			ctx.addOption("Spain");
+			ctx.vote("Turkey", "traveler1");
+			ctx.vote("Turkey", "traveler2");
+			ctx.vote("Morocco", "traveler3");
+			expect(ctx.displayResults()).toBe(
+				"Poll Results:\nTurkey: 2 votes\nMorocco: 1 votes\nSpain: 0 votes",
+			);
+		});
+
+		it("should return results in the correct format", () => {
+			ctx.addOption("A");
+			ctx.addOption("B");
+			ctx.vote("A", "v1");
+			const result = ctx.displayResults();
+			expect(result.startsWith("Poll Results:\n")).toBe(true);
+			expect(result).toContain("A: 1 votes");
+			expect(result).toContain("B: 0 votes");
+		});
+	});
+
+	describe("minimum data", () => {
+		it("should have at least three options", () => {
+			expect(ctx.poll.size).toBeGreaterThanOrEqual(3);
+		});
+
+		it("should have at least three votes", () => {
+			let totalVotes = 0;
+			for (const voters of ctx.poll.values()) {
+				totalVotes += voters.size;
+			}
+			expect(totalVotes).toBeGreaterThanOrEqual(3);
+		});
+	});
+
 	describe("vote", () => {
 		it("should return error when option does not exist", () => {
-			expect(ctx.vote("Nigeria", "traveler2")).toBe('Option "Nigeria" does not exist.');
+			expect(ctx.vote("Nigeria", "traveler2")).toBe(
+				'Option "Nigeria" does not exist.',
+			);
 		});
 
 		it("should register a vote and return confirmation", () => {
 			ctx.addOption("Malaysia");
-			expect(ctx.vote("Malaysia", "traveler1")).toBe('Voter traveler1 voted for "Malaysia".');
+			expect(ctx.vote("Malaysia", "traveler1")).toBe(
+				'Voter traveler1 voted for "Malaysia".',
+			);
 		});
 
 		it("should update the Set of voters for an option", () => {
@@ -57,7 +100,9 @@ describe("Voting System", () => {
 		it("should prevent duplicate voting", () => {
 			ctx.addOption("Algeria");
 			ctx.vote("Algeria", "traveler1");
-			expect(ctx.vote("Algeria", "traveler1")).toBe('Voter traveler1 has already voted for "Algeria".');
+			expect(ctx.vote("Algeria", "traveler1")).toBe(
+				'Voter traveler1 has already voted for "Algeria".',
+			);
 		});
 
 		it("should not increase Set size on duplicate vote", () => {
