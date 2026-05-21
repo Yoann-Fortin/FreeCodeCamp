@@ -26,4 +26,9 @@ describe("convertMarkdown", () => {
 	it("should be a function", () => {
 		expect(typeof window.convertMarkdown).toBe("function");
 	});
+
+	it("should convert '# title 1' to '<h1>title 1</h1>'", () => {
+		window.document.querySelector("#markdown-input").value = "# title 1";
+		expect(window.convertMarkdown()).toBe("<h1>title 1</h1>");
+	});
 });
