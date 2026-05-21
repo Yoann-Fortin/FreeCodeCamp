@@ -291,4 +291,56 @@ describe("convertMarkdown", () => {
 		window.document.querySelector("#markdown-input").value = "[link text](URL)\n[link text 2](URL2)";
 		expect(window.convertMarkdown()).toBe('<a href="URL">link text</a><a href="URL2">link text 2</a>');
 	});
+
+	it("should convert '> this is a quote' to '<blockquote>this is a quote</blockquote>'", () => {
+		window.document.querySelector("#markdown-input").value = "> this is a quote";
+		expect(window.convertMarkdown()).toBe("<blockquote>this is a quote</blockquote>");
+	});
+
+	it("should display blockquote inside #html-output", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "> this is a quote";
+		input.dispatchEvent(new window.Event("input"));
+		expect(window.document.querySelector("#html-output").textContent).toBe("<blockquote>this is a quote</blockquote>");
+	});
+
+	it("should render a blockquote element inside #preview", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "> this is a quote";
+		input.dispatchEvent(new window.Event("input"));
+		const bq = window.document.querySelector("#preview blockquote");
+		expect(bq).not.toBeNull();
+		expect(bq.textContent).toBe("this is a quote");
+	});
+
+	it("should convert multiple blockquotes on separate lines", () => {
+		window.document.querySelector("#markdown-input").value = "> this is a quote\n> this is another quote";
+		expect(window.convertMarkdown()).toBe("<blockquote>this is a quote</blockquote><blockquote>this is another quote</blockquote>");
+	});
+
+	it("should not convert '>' when preceded by other text", () => {
+		window.document.querySelector("#markdown-input").value = "some text > not a quote anymore";
+		expect(window.convertMarkdown()).toBe("some text > not a quote anymore");
+	});
+
+	it("should convert '> **this is a *quote***' with nested bold and italic", () => {
+		window.document.querySelector("#markdown-input").value = "> **this is a *quote***";
+		expect(window.convertMarkdown()).toBe("<blockquote><strong>this is a <em>quote</em></strong></blockquote>");
+	});
+
+	it("should display nested bold+italic blockquote inside #html-output", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "> **this is a *quote***";
+		input.dispatchEvent(new window.Event("input"));
+		expect(window.document.querySelector("#html-output").textContent).toBe("<blockquote><strong>this is a <em>quote</em></strong></blockquote>");
+	});
+
+	it("should render nested bold+italic blockquote inside #preview", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "> **this is a *quote***";
+		input.dispatchEvent(new window.Event("input"));
+		const bq = window.document.querySelector("#preview blockquote");
+		expect(bq).not.toBeNull();
+		expect(bq.querySelector("strong em")).not.toBeNull();
+	});
 });
