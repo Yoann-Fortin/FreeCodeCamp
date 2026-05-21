@@ -37,4 +37,24 @@ describe("Voting System", () => {
 	it("should have a displayResults function", () => {
 		expect(typeof ctx.displayResults).toBe("function");
 	});
+
+	describe("addOption", () => {
+		it("should add a new option and return confirmation message", () => {
+			expect(ctx.addOption("Egypt")).toBe('Option "Egypt" added to the poll.');
+		});
+
+		it("should return error message for empty option", () => {
+			expect(ctx.addOption("")).toBe("Option cannot be empty.");
+		});
+
+		it("should return error message for duplicate option", () => {
+			ctx.addOption("Turkey");
+			expect(ctx.addOption("Turkey")).toBe('Option "Turkey" already exists.');
+		});
+
+		it("should map each option to a Set", () => {
+			ctx.addOption("Turkey");
+			expect(ctx.poll.get("Turkey")).toBeInstanceOf(Set);
+		});
+	});
 });
