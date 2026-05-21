@@ -264,4 +264,31 @@ describe("convertMarkdown", () => {
 		window.document.querySelector("#markdown-input").value = "![alt-text](image-source)\n![alt-text-2](image-source-2)";
 		expect(window.convertMarkdown()).toBe('<img alt="alt-text" src="image-source"><img alt="alt-text-2" src="image-source-2">');
 	});
+
+	it("should convert '[link text](URL)' to '<a href=\"URL\">link text</a>'", () => {
+		window.document.querySelector("#markdown-input").value = "[link text](URL)";
+		expect(window.convertMarkdown()).toBe('<a href="URL">link text</a>');
+	});
+
+	it("should display anchor tag inside #html-output", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "[link text](URL)";
+		input.dispatchEvent(new window.Event("input"));
+		expect(window.document.querySelector("#html-output").textContent).toBe('<a href="URL">link text</a>');
+	});
+
+	it("should render an anchor element inside #preview", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "[link text](URL)";
+		input.dispatchEvent(new window.Event("input"));
+		const a = window.document.querySelector("#preview a");
+		expect(a).not.toBeNull();
+		expect(a.getAttribute("href")).toBe("URL");
+		expect(a.textContent).toBe("link text");
+	});
+
+	it("should convert multiple links on separate lines", () => {
+		window.document.querySelector("#markdown-input").value = "[link text](URL)\n[link text 2](URL2)";
+		expect(window.convertMarkdown()).toBe('<a href="URL">link text</a><a href="URL2">link text 2</a>');
+	});
 });
