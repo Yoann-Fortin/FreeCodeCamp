@@ -41,7 +41,7 @@
 	},
 	"overrides": [
 		{
-			"includes": ["**/*.test.js", "**/*.config.js"],
+			"includes": ["**/*.test.js", "**/*.test.ts", "**/*.config.js"],
 			"linter": {
 				"rules": {
 					"correctness": {
