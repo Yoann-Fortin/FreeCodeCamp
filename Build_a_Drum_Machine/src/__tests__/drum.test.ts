@@ -5,20 +5,38 @@ import { JSDOM } from "jsdom";
 import { beforeEach, describe, expect, it } from "vitest";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const htmlFile = resolve(__dirname, "index.html");
-const scriptFile = resolve(__dirname, "script.js");
+const htmlFile = resolve(__dirname, "..", "..", "index.html");
+const scriptFile = resolve(__dirname, "..", "..", "script.js");
 
-function loadPage() {
+interface DrumWindow {
+	document: Document;
+	Event: typeof Event;
+	KeyboardEvent: typeof KeyboardEvent;
+}
+
+let window: DrumWindow;
+
+function loadPage(): DrumWindow {
 	const html = readFileSync(htmlFile, "utf-8");
 	const dom = new JSDOM(html, { runScripts: "dangerously" });
 	const scriptContent = readFileSync(scriptFile, "utf-8");
 	dom.window.eval(scriptContent);
-	return dom.window;
+	return dom.window as unknown as DrumWindow;
+}
+
+function stubAudioPlay(): string[] {
+	const playedIds: string[] = [];
+	const audios = window.document.querySelectorAll("audio.clip");
+	for (const audio of audios) {
+		(audio as HTMLAudioElement).play = () => {
+			playedIds.push(audio.id);
+			return Promise.resolve();
+		};
+	}
+	return playedIds;
 }
 
 describe("Drum Machine", () => {
-	let window;
-
 	beforeEach(() => {
 		window = loadPage();
 	});
@@ -26,19 +44,19 @@ describe("Drum Machine", () => {
 	it("should have a div with id 'drum-machine'", () => {
 		const drumMachine = window.document.querySelector("#drum-machine");
 		expect(drumMachine).not.toBeNull();
-		expect(drumMachine.tagName).toBe("DIV");
+		expect(drumMachine!.tagName).toBe("DIV");
 	});
 
 	it("should have a div with id 'pad-bank' inside #drum-machine", () => {
 		const padBank = window.document.querySelector("#drum-machine #pad-bank");
 		expect(padBank).not.toBeNull();
-		expect(padBank.tagName).toBe("DIV");
+		expect(padBank!.tagName).toBe("DIV");
 	});
 
 	it("should have a p element with id 'display' inside #drum-machine", () => {
 		const display = window.document.querySelector("#drum-machine #display");
 		expect(display).not.toBeNull();
-		expect(display.tagName).toBe("P");
+		expect(display!.tagName).toBe("P");
 	});
 
 	it("should have nine drum-pad buttons inside #pad-bank", () => {
@@ -52,7 +70,7 @@ describe("Drum Machine", () => {
 	it("should have drum pads with letters Q, W, E, A, S, D, Z, X, C in order", () => {
 		const pads = window.document.querySelectorAll("#pad-bank .drum-pad");
 		const expected = ["Q", "W", "E", "A", "S", "D", "Z", "X", "C"];
-		const letters = [...pads].map((pad) => pad.textContent.trim());
+		const letters = [...pads].map((pad) => pad.textContent!.trim());
 		expect(letters).toEqual(expected);
 	});
 
@@ -61,23 +79,14 @@ describe("Drum Machine", () => {
 		for (const pad of pads) {
 			const audio = pad.querySelector("audio.clip");
 			expect(audio).not.toBeNull();
-			expect(audio.hasAttribute("src")).toBe(true);
-			expect(audio.id).toBe(pad.textContent.trim());
+			expect(audio!.hasAttribute("src")).toBe(true);
+			expect(audio!.id).toBe(pad.textContent!.trim());
 		}
 	});
 
-	function stubAudioPlay() {
-		const playedIds = [];
-		const audios = window.document.querySelectorAll("audio.clip");
-		for (const audio of audios) {
-			audio.play = () => { playedIds.push(audio.id); };
-		}
-		return playedIds;
-	}
-
 	it("should play audio when a drum-pad is clicked", () => {
 		const playedIds = stubAudioPlay();
-		const pad = window.document.querySelector(".drum-pad");
+		const pad = window.document.querySelector(".drum-pad") as HTMLButtonElement;
 		pad.click();
 		expect(playedIds.length).toBe(1);
 	});
@@ -85,26 +94,26 @@ describe("Drum Machine", () => {
 	it("should play audio when the corresponding key is pressed", () => {
 		const playedIds = stubAudioPlay();
 		window.document.dispatchEvent(
-			new window.KeyboardEvent("keydown", { key: "q" })
+			new window.KeyboardEvent("keydown", { key: "q" }),
 		);
 		expect(playedIds).toContain("Q");
 	});
 
 	it("should display the drum name when a pad is triggered", () => {
 		stubAudioPlay();
-		const pad = window.document.querySelector(".drum-pad");
+		const pad = window.document.querySelector(".drum-pad") as HTMLButtonElement;
 		pad.click();
 		const display = window.document.querySelector("#display");
-		expect(display.textContent.length).toBeGreaterThan(0);
+		expect(display!.textContent!.length).toBeGreaterThan(0);
 	});
 
 	it("should display unique names for each pad", () => {
 		stubAudioPlay();
 		const pads = window.document.querySelectorAll(".drum-pad");
-		const names = new Set();
+		const names = new Set<string>();
 		for (const pad of pads) {
-			pad.click();
-			names.add(window.document.querySelector("#display").textContent);
+			(pad as HTMLButtonElement).click();
+			names.add(window.document.querySelector("#display")!.textContent!);
 		}
 		expect(names.size).toBe(9);
 	});

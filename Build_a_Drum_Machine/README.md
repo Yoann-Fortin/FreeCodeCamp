@@ -32,7 +32,10 @@ This project follows a **TDD (Test-Driven Development)** workflow using [Vitest]
 |--------|---------|
 | `main` | Minimal implementation, passes all 10 certification tests |
 | `drum/feature/typescript` | Migration to TypeScript |
-| `drum/feature/factory-observer` | Factory for pad creation, Observer for display updates |
+| `drum/feature/factory` | Factory pattern: create pads from config instead of duplicating HTML |
+| `drum/feature/observer` | Observer pattern: pads emit events, display subscribes |
+| `drum/feature/command` | Command pattern: encapsulate play actions as objects |
+| `drum/feature/mediator` | Mediator pattern: centralized communication between pads and display |
 | `drum/feature/hexagonal` | Hexagonal architecture (Ports & Adapters) with domain isolation |
 
 ### Running tests
