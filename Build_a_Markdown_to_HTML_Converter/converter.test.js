@@ -218,4 +218,23 @@ describe("convertMarkdown", () => {
 		window.document.querySelector("#markdown-input").value = "_this is italic_\n_this is also italic_";
 		expect(window.convertMarkdown()).toBe("<em>this is italic</em><em>this is also italic</em>");
 	});
+
+	it("should convert '# **title 1**' to '<h1><strong>title 1</strong></h1>'", () => {
+		window.document.querySelector("#markdown-input").value = "# **title 1**";
+		expect(window.convertMarkdown()).toBe("<h1><strong>title 1</strong></h1>");
+	});
+
+	it("should display combined heading+bold inside #html-output", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "# __title 1__";
+		input.dispatchEvent(new window.Event("input"));
+		expect(window.document.querySelector("#html-output").textContent).toBe("<h1><strong>title 1</strong></h1>");
+	});
+
+	it("should render combined heading+bold inside #preview", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "# **title 1**";
+		input.dispatchEvent(new window.Event("input"));
+		expect(window.document.querySelector("#preview").querySelector("h1 strong")).not.toBeNull();
+	});
 });
