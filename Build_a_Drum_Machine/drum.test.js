@@ -65,4 +65,47 @@ describe("Drum Machine", () => {
 			expect(audio.id).toBe(pad.textContent.trim());
 		}
 	});
+
+	function stubAudioPlay() {
+		const playedIds = [];
+		const audios = window.document.querySelectorAll("audio.clip");
+		for (const audio of audios) {
+			audio.play = () => { playedIds.push(audio.id); };
+		}
+		return playedIds;
+	}
+
+	it("should play audio when a drum-pad is clicked", () => {
+		const playedIds = stubAudioPlay();
+		const pad = window.document.querySelector(".drum-pad");
+		pad.click();
+		expect(playedIds.length).toBe(1);
+	});
+
+	it("should play audio when the corresponding key is pressed", () => {
+		const playedIds = stubAudioPlay();
+		window.document.dispatchEvent(
+			new window.KeyboardEvent("keydown", { key: "q" })
+		);
+		expect(playedIds).toContain("Q");
+	});
+
+	it("should display the drum name when a pad is triggered", () => {
+		stubAudioPlay();
+		const pad = window.document.querySelector(".drum-pad");
+		pad.click();
+		const display = window.document.querySelector("#display");
+		expect(display.textContent.length).toBeGreaterThan(0);
+	});
+
+	it("should display unique names for each pad", () => {
+		stubAudioPlay();
+		const pads = window.document.querySelectorAll(".drum-pad");
+		const names = new Set();
+		for (const pad of pads) {
+			pad.click();
+			names.add(window.document.querySelector("#display").textContent);
+		}
+		expect(names.size).toBe(9);
+	});
 });
