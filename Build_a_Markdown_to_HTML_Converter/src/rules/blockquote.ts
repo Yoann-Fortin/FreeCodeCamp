@@ -1,7 +1,6 @@
-import type { ConversionRule } from "./rule.ts";
+import { RegexRule } from "./rule.ts";
 
-export class BlockquoteRule implements ConversionRule {
-	apply(line: string): string {
-		return line.replace(/^>\s+(.+)$/, "<blockquote>$1</blockquote>");
-	}
+export class BlockquoteRule extends RegexRule {
+	protected pattern = /^>\s+(.+)$/;
+	protected replacement = "<blockquote>$1</blockquote>";
 }

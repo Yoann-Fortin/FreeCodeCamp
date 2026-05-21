@@ -1,9 +1,18 @@
 "use strict";
 (() => {
-  // Build_a_Markdown_to_HTML_Converter/src/rules/blockquote.ts
-  var BlockquoteRule = class {
+  // Build_a_Markdown_to_HTML_Converter/src/rules/rule.ts
+  var RegexRule = class {
     apply(line) {
-      return line.replace(/^>\s+(.+)$/, "<blockquote>$1</blockquote>");
+      return line.replace(this.pattern, this.replacement);
+    }
+  };
+
+  // Build_a_Markdown_to_HTML_Converter/src/rules/blockquote.ts
+  var BlockquoteRule = class extends RegexRule {
+    constructor() {
+      super(...arguments);
+      this.pattern = /^>\s+(.+)$/;
+      this.replacement = "<blockquote>$1</blockquote>";
     }
   };
 
@@ -25,9 +34,11 @@
   };
 
   // Build_a_Markdown_to_HTML_Converter/src/rules/image.ts
-  var ImageRule = class {
-    apply(line) {
-      return line.replace(/!\[(.+?)\]\((.+?)\)/g, '<img alt="$1" src="$2">');
+  var ImageRule = class extends RegexRule {
+    constructor() {
+      super(...arguments);
+      this.pattern = /!\[(.+?)\]\((.+?)\)/g;
+      this.replacement = '<img alt="$1" src="$2">';
     }
   };
 
@@ -39,9 +50,11 @@
   };
 
   // Build_a_Markdown_to_HTML_Converter/src/rules/link.ts
-  var LinkRule = class {
-    apply(line) {
-      return line.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
+  var LinkRule = class extends RegexRule {
+    constructor() {
+      super(...arguments);
+      this.pattern = /\[(.+?)\]\((.+?)\)/g;
+      this.replacement = '<a href="$2">$1</a>';
     }
   };
 
