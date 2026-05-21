@@ -119,4 +119,51 @@ describe("convertMarkdown", () => {
 		window.document.querySelector("#markdown-input").value = "### title 3\n### third title";
 		expect(window.convertMarkdown()).toBe("<h3>title 3</h3><h3>third title</h3>");
 	});
+
+	it("should convert '**this is bold**' to '<strong>this is bold</strong>'", () => {
+		window.document.querySelector("#markdown-input").value = "**this is bold**";
+		expect(window.convertMarkdown()).toBe("<strong>this is bold</strong>");
+	});
+
+	it("should display '<strong>this is bold</strong>' inside #html-output", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "**this is bold**";
+		input.dispatchEvent(new window.Event("input"));
+		expect(window.document.querySelector("#html-output").textContent).toBe("<strong>this is bold</strong>");
+	});
+
+	it("should render a strong element inside #preview when input is '**this is bold**'", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "**this is bold**";
+		input.dispatchEvent(new window.Event("input"));
+		const strong = window.document.querySelector("#preview strong");
+		expect(strong).not.toBeNull();
+		expect(strong.textContent).toBe("this is bold");
+	});
+
+	it("should convert multiple **bold** on separate lines", () => {
+		window.document.querySelector("#markdown-input").value = "**this is bold**\n**this is also bold**";
+		expect(window.convertMarkdown()).toBe("<strong>this is bold</strong><strong>this is also bold</strong>");
+	});
+
+	it("should display '<strong>this is bold</strong>' inside #html-output for '__this is bold__'", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "__this is bold__";
+		input.dispatchEvent(new window.Event("input"));
+		expect(window.document.querySelector("#html-output").textContent).toBe("<strong>this is bold</strong>");
+	});
+
+	it("should render a strong element inside #preview when input is '__this is bold__'", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "__this is bold__";
+		input.dispatchEvent(new window.Event("input"));
+		const strong = window.document.querySelector("#preview strong");
+		expect(strong).not.toBeNull();
+		expect(strong.textContent).toBe("this is bold");
+	});
+
+	it("should convert multiple __bold__ on separate lines", () => {
+		window.document.querySelector("#markdown-input").value = "__this is bold__\n__this is also bold__";
+		expect(window.convertMarkdown()).toBe("<strong>this is bold</strong><strong>this is also bold</strong>");
+	});
 });

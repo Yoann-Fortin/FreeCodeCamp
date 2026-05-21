@@ -3,10 +3,13 @@ function convertMarkdown() {
 	return markdown
 		.split("\n")
 		.map((line) =>
-			line.replace(/^(#{1,6})\s+(.+)$/, (_, hashes, text) => {
-				const level = hashes.length;
-				return `<h${level}>${text}</h${level}>`;
-			}),
+			line
+				.replace(/^(#{1,6})\s+(.+)$/, (_, hashes, text) => {
+					const level = hashes.length;
+					return `<h${level}>${text}</h${level}>`;
+				})
+				.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+				.replace(/__(.+?)__/g, "<strong>$1</strong>"),
 		)
 		.join("");
 }
