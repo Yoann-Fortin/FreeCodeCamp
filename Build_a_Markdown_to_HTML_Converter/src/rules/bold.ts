@@ -1,9 +1,11 @@
-import type { ConversionRule } from "./rule.ts";
+import { RegexRule } from "./rule.ts";
 
-export class BoldRule implements ConversionRule {
-	apply(line: string): string {
-		return line
-			.replace(/\*\*(.+)\*\*/g, "<strong>$1</strong>")
-			.replace(/__(.+?)__/g, "<strong>$1</strong>");
-	}
+export class AsteriskBoldRule extends RegexRule {
+	protected pattern = /\*\*(.+)\*\*/g;
+	protected replacement = "<strong>$1</strong>";
+}
+
+export class UnderscoreBoldRule extends RegexRule {
+	protected pattern = /__(.+?)__/g;
+	protected replacement = "<strong>$1</strong>";
 }

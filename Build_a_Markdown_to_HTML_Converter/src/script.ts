@@ -1,18 +1,22 @@
 import { BlockquoteRule } from "./rules/blockquote.ts";
-import { BoldRule } from "./rules/bold.ts";
+import { AsteriskBoldRule, UnderscoreBoldRule } from "./rules/bold.ts";
+import { CompositeRule } from "./rules/composite.ts";
 import { HeadingRule } from "./rules/heading.ts";
 import { ImageRule } from "./rules/image.ts";
-import { ItalicRule } from "./rules/italic.ts";
+import { AsteriskItalicRule, UnderscoreItalicRule } from "./rules/italic.ts";
 import { LinkRule } from "./rules/link.ts";
 import type { ConversionRule } from "./rules/rule.ts";
+
+const boldRule = new CompositeRule(new AsteriskBoldRule(), new UnderscoreBoldRule());
+const italicRule = new CompositeRule(new AsteriskItalicRule(), new UnderscoreItalicRule());
 
 const rules: ConversionRule[] = [
 	new HeadingRule(),
 	new ImageRule(),
 	new LinkRule(),
 	new BlockquoteRule(),
-	new BoldRule(),
-	new ItalicRule(),
+	boldRule,
+	italicRule,
 ];
 
 function convertMarkdown(): string {

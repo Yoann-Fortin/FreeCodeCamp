@@ -17,9 +17,28 @@
   };
 
   // Build_a_Markdown_to_HTML_Converter/src/rules/bold.ts
-  var BoldRule = class {
+  var AsteriskBoldRule = class extends RegexRule {
+    constructor() {
+      super(...arguments);
+      this.pattern = /\*\*(.+)\*\*/g;
+      this.replacement = "<strong>$1</strong>";
+    }
+  };
+  var UnderscoreBoldRule = class extends RegexRule {
+    constructor() {
+      super(...arguments);
+      this.pattern = /__(.+?)__/g;
+      this.replacement = "<strong>$1</strong>";
+    }
+  };
+
+  // Build_a_Markdown_to_HTML_Converter/src/rules/composite.ts
+  var CompositeRule = class {
+    constructor(...rules2) {
+      this.rules = rules2;
+    }
     apply(line) {
-      return line.replace(/\*\*(.+)\*\*/g, "<strong>$1</strong>").replace(/__(.+?)__/g, "<strong>$1</strong>");
+      return this.rules.reduce((result, rule) => rule.apply(result), line);
     }
   };
 
@@ -43,9 +62,18 @@
   };
 
   // Build_a_Markdown_to_HTML_Converter/src/rules/italic.ts
-  var ItalicRule = class {
-    apply(line) {
-      return line.replace(/\*(.+?)\*/g, "<em>$1</em>").replace(/_(.+?)_/g, "<em>$1</em>");
+  var AsteriskItalicRule = class extends RegexRule {
+    constructor() {
+      super(...arguments);
+      this.pattern = /\*(.+?)\*/g;
+      this.replacement = "<em>$1</em>";
+    }
+  };
+  var UnderscoreItalicRule = class extends RegexRule {
+    constructor() {
+      super(...arguments);
+      this.pattern = /_(.+?)_/g;
+      this.replacement = "<em>$1</em>";
     }
   };
 
@@ -59,13 +87,15 @@
   };
 
   // Build_a_Markdown_to_HTML_Converter/src/script.ts
+  var boldRule = new CompositeRule(new AsteriskBoldRule(), new UnderscoreBoldRule());
+  var italicRule = new CompositeRule(new AsteriskItalicRule(), new UnderscoreItalicRule());
   var rules = [
     new HeadingRule(),
     new ImageRule(),
     new LinkRule(),
     new BlockquoteRule(),
-    new BoldRule(),
-    new ItalicRule()
+    boldRule,
+    italicRule
   ];
   function convertMarkdown() {
     const input = document.querySelector("#markdown-input");

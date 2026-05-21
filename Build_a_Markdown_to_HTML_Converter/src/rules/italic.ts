@@ -1,9 +1,11 @@
-import type { ConversionRule } from "./rule.ts";
+import { RegexRule } from "./rule.ts";
 
-export class ItalicRule implements ConversionRule {
-	apply(line: string): string {
-		return line
-			.replace(/\*(.+?)\*/g, "<em>$1</em>")
-			.replace(/_(.+?)_/g, "<em>$1</em>");
-	}
+export class AsteriskItalicRule extends RegexRule {
+	protected pattern = /\*(.+?)\*/g;
+	protected replacement = "<em>$1</em>";
+}
+
+export class UnderscoreItalicRule extends RegexRule {
+	protected pattern = /_(.+?)_/g;
+	protected replacement = "<em>$1</em>";
 }
