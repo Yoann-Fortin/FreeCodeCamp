@@ -2,7 +2,12 @@ function convertMarkdown() {
 	const markdown = document.querySelector("#markdown-input").value;
 	return markdown
 		.split("\n")
-		.map((line) => line.replace(/^(#{1})\s+(.+)$/, "<h1>$2</h1>"))
+		.map((line) =>
+			line.replace(/^(#{1,6})\s+(.+)$/, (_, hashes, text) => {
+				const level = hashes.length;
+				return `<h${level}>${text}</h${level}>`;
+			}),
+		)
 		.join("");
 }
 

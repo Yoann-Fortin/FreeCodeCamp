@@ -57,4 +57,35 @@ describe("convertMarkdown", () => {
 		window.document.querySelector("#markdown-input").value = "# title 1\n# alternate title";
 		expect(window.convertMarkdown()).toBe("<h1>title 1</h1><h1>alternate title</h1>");
 	});
+
+	it("should convert '## title 2' to '<h2>title 2</h2>'", () => {
+		window.document.querySelector("#markdown-input").value = "## title 2";
+		expect(window.convertMarkdown()).toBe("<h2>title 2</h2>");
+	});
+
+	it("should display '<h2>title 2</h2>' inside #html-output when input is '## title 2'", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "## title 2";
+		input.dispatchEvent(new window.Event("input"));
+		expect(window.document.querySelector("#html-output").textContent).toBe("<h2>title 2</h2>");
+	});
+
+	it("should render an h2 element inside #preview when input is '## title 2'", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "## title 2";
+		input.dispatchEvent(new window.Event("input"));
+		const h2 = window.document.querySelector("#preview h2");
+		expect(h2).not.toBeNull();
+		expect(h2.textContent).toBe("title 2");
+	});
+
+	it("should not convert '## title 2' when preceded by other text", () => {
+		window.document.querySelector("#markdown-input").value = "some text ## title 2";
+		expect(window.convertMarkdown()).toBe("some text ## title 2");
+	});
+
+	it("should convert multiple h2 headings on separate lines", () => {
+		window.document.querySelector("#markdown-input").value = "## title 2\n## title 2 alt";
+		expect(window.convertMarkdown()).toBe("<h2>title 2</h2><h2>title 2 alt</h2>");
+	});
 });
