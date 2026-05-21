@@ -237,4 +237,31 @@ describe("convertMarkdown", () => {
 		input.dispatchEvent(new window.Event("input"));
 		expect(window.document.querySelector("#preview").querySelector("h1 strong")).not.toBeNull();
 	});
+
+	it("should convert '![alt-text](image-source)' to '<img alt=\"alt-text\" src=\"image-source\">'", () => {
+		window.document.querySelector("#markdown-input").value = "![alt-text](image-source)";
+		expect(window.convertMarkdown()).toBe('<img alt="alt-text" src="image-source">');
+	});
+
+	it("should display img tag inside #html-output", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "![alt-text](image-source)";
+		input.dispatchEvent(new window.Event("input"));
+		expect(window.document.querySelector("#html-output").textContent).toBe('<img alt="alt-text" src="image-source">');
+	});
+
+	it("should render an img element inside #preview", () => {
+		const input = window.document.querySelector("#markdown-input");
+		input.value = "![alt-text](image-source)";
+		input.dispatchEvent(new window.Event("input"));
+		const img = window.document.querySelector("#preview img");
+		expect(img).not.toBeNull();
+		expect(img.getAttribute("alt")).toBe("alt-text");
+		expect(img.getAttribute("src")).toBe("image-source");
+	});
+
+	it("should convert multiple images on separate lines", () => {
+		window.document.querySelector("#markdown-input").value = "![alt-text](image-source)\n![alt-text-2](image-source-2)";
+		expect(window.convertMarkdown()).toBe('<img alt="alt-text" src="image-source"><img alt="alt-text-2" src="image-source-2">');
+	});
 });

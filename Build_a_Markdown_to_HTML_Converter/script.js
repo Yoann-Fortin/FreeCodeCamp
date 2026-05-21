@@ -8,6 +8,7 @@ function convertMarkdown() {
 					const level = hashes.length;
 					return `<h${level}>${text}</h${level}>`;
 				})
+				.replace(/!\[(.+?)\]\((.+?)\)/g, '<img alt="$1" src="$2">')
 				.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
 				.replace(/__(.+?)__/g, "<strong>$1</strong>")
 				.replace(/\*(.+?)\*/g, "<em>$1</em>")
