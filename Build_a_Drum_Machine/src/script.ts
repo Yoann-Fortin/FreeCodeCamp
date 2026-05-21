@@ -1,5 +1,7 @@
+import { PlayPadCommand } from "./command.ts";
+import { CommandHistory } from "./command-history.ts";
 import { EventBus } from "./event-bus.ts";
-import { type PadConfig, PadFactory } from "./pad-factory.ts";
+import { createAllPads, type PadConfig } from "./pad-factory.ts";
 
 const CDN = "https://cdn.freecodecamp.org/curriculum/drum";
 
@@ -16,38 +18,45 @@ const PADS: PadConfig[] = [
 ];
 
 const bus = new EventBus();
+const history = new CommandHistory();
 
-const display = document.getElementById("display");
+const display = document.querySelector("#display");
 if (display) {
 	bus.on("pad-played", (name: string) => {
 		display.textContent = name;
 	});
 }
 
-const padBank = document.getElementById("pad-bank");
+const padBank = document.querySelector("#pad-bank");
 if (padBank) {
-	for (const button of PadFactory.createAll(PADS)) {
+	for (const button of createAllPads(PADS)) {
 		padBank.appendChild(button);
 	}
 }
 
 function playPad(key: string): void {
-	const audio = document.getElementById(key) as HTMLAudioElement | null;
-	if (!audio) return;
-	audio.currentTime = 0;
-	audio.play();
-	const pad = PADS.find((p) => p.key === key);
-	if (pad) {
-		bus.emit("pad-played", pad.name);
+	const audio = document.querySelector(`#${key}`) as HTMLAudioElement | null;
+	if (!audio) {
+		return;
 	}
+	const pad = PADS.find((p) => p.key === key);
+	if (!pad) {
+		return;
+	}
+	const command = new PlayPadCommand(audio, pad.name, (name) =>
+		bus.emit("pad-played", name),
+	);
+	history.execute(command);
 }
 
-document.querySelectorAll(".drum-pad").forEach((pad) => {
+for (const pad of document.querySelectorAll(".drum-pad")) {
 	pad.addEventListener("click", () => {
 		const key = pad.textContent?.trim();
-		if (key) playPad(key);
+		if (key) {
+			playPad(key);
+		}
 	});
-});
+}
 
 document.addEventListener("keydown", (e: KeyboardEvent) => {
 	const key = e.key.toUpperCase();

@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 import { JSDOM } from "jsdom";
 import { beforeEach, describe, expect, it } from "vitest";
 
+const TOTAL_PADS = 9;
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const htmlFile = resolve(__dirname, "..", "..", "index.html");
 const scriptFile = resolve(__dirname, "..", "..", "script.js");
@@ -28,7 +30,7 @@ function stubAudioPlay(): string[] {
 	const playedIds: string[] = [];
 	const audios = window.document.querySelectorAll("audio.clip");
 	for (const audio of audios) {
-		(audio as HTMLAudioElement).play = () => {
+		(audio as HTMLAudioElement).play = (): Promise<void> => {
 			playedIds.push(audio.id);
 			return Promise.resolve();
 		};
@@ -61,7 +63,7 @@ describe("Drum Machine", () => {
 
 	it("should have nine drum-pad buttons inside #pad-bank", () => {
 		const pads = window.document.querySelectorAll("#pad-bank .drum-pad");
-		expect(pads.length).toBe(9);
+		expect(pads.length).toBe(TOTAL_PADS);
 		for (const pad of pads) {
 			expect(pad.tagName).toBe("BUTTON");
 		}
@@ -115,6 +117,6 @@ describe("Drum Machine", () => {
 			(pad as HTMLButtonElement).click();
 			names.add(window.document.querySelector("#display")!.textContent!);
 		}
-		expect(names.size).toBe(9);
+		expect(names.size).toBe(TOTAL_PADS);
 	});
 });
