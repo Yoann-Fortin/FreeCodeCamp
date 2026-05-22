@@ -14,7 +14,6 @@ A poll-based voting system using Map and Set, developed as part of the [freeCode
 |----------|------------|
 | `addOption(option)` | Add a new option to the poll |
 | `vote(option, voterId)` | Cast a vote for an option |
-| `displayResults()` | Return formatted poll results |
 
 ## Approach
 
@@ -26,7 +25,6 @@ This project follows a **TDD (Test-Driven Development)** workflow using [Vitest]
 |--------|---------|
 | `main` | Minimal implementation, passes all 18 certification tests |
 | `voting/feature/typescript` | Migration to TypeScript |
-| `voting/feature/repository` | Repository pattern: encapsulate Map in a PollRepository |
 | `voting/feature/hexagonal` | Hexagonal architecture (Ports & Adapters) with domain isolation |
 
 ### Running tests
