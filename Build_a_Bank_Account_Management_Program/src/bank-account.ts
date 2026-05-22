@@ -1,18 +1,16 @@
-interface Transaction {
-	type: "deposit" | "withdraw";
-	amount: number;
-}
+import { DepositCommand } from "./deposit-command.ts";
+import { TransactionHistory } from "./transaction-history.ts";
+import { WithdrawCommand } from "./withdraw-command.ts";
 
 export class BankAccount {
 	balance = 0;
-	transactions: Transaction[] = [];
+	private readonly history = new TransactionHistory();
 
 	deposit(amount: number): string {
 		if (amount <= 0) {
 			return "Deposit amount must be greater than zero.";
 		}
-		this.transactions.push({ type: "deposit", amount });
-		this.balance += amount;
+		this.history.execute(new DepositCommand(this, amount));
 		return `Successfully deposited $${amount}. New balance: $${this.balance}`;
 	}
 
@@ -20,9 +18,16 @@ export class BankAccount {
 		if (amount <= 0 || amount > this.balance) {
 			return "Insufficient balance or invalid amount.";
 		}
-		this.transactions.push({ type: "withdraw", amount });
-		this.balance -= amount;
+		this.history.execute(new WithdrawCommand(this, amount));
 		return `Successfully withdrew $${amount}. New balance: $${this.balance}`;
+	}
+
+	undoLast(): string {
+		const command = this.history.undoLast();
+		if (!command) {
+			return "No transactions to undo.";
+		}
+		return `Undid ${command.type} of $${command.amount}. New balance: $${this.balance}`;
 	}
 
 	checkBalance(): string {
@@ -30,16 +35,16 @@ export class BankAccount {
 	}
 
 	listAllDeposits(): string {
-		const deposits = this.transactions
-			.filter((t) => t.type === "deposit")
-			.map((t) => t.amount);
-		return `Deposits: ${deposits.join(",")}`;
+		const amounts = this.history.filterByType("deposit").map((c) => c.amount);
+		return `Deposits: ${amounts.join(",")}`;
 	}
 
 	listAllWithdrawals(): string {
-		const withdrawals = this.transactions
-			.filter((t) => t.type === "withdraw")
-			.map((t) => t.amount);
-		return `Withdrawals: ${withdrawals.join(",")}`;
+		const amounts = this.history.filterByType("withdraw").map((c) => c.amount);
+		return `Withdrawals: ${amounts.join(",")}`;
+	}
+
+	get transactions(): { type: string; amount: number }[] {
+		return this.history.all().map((c) => ({ type: c.type, amount: c.amount }));
 	}
 }

@@ -86,4 +86,25 @@ describe("BankAccount", () => {
 			expect(account.listAllWithdrawals()).toBe("Withdrawals: 20,50,100");
 		});
 	});
+
+	describe("undoLast", () => {
+		it("should undo last deposit", () => {
+			account.deposit(100);
+			expect(account.undoLast()).toBe("Undid deposit of $100. New balance: $0");
+			expect(account.balance).toBe(0);
+		});
+
+		it("should undo last withdrawal", () => {
+			account.deposit(200);
+			account.withdraw(50);
+			expect(account.undoLast()).toBe(
+				"Undid withdraw of $50. New balance: $200",
+			);
+			expect(account.balance).toBe(200);
+		});
+
+		it("should return message when no transactions to undo", () => {
+			expect(account.undoLast()).toBe("No transactions to undo.");
+		});
+	});
 });
