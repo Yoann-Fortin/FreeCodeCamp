@@ -21,8 +21,7 @@ describe("Bank Account", () => {
 	let account;
 
 	beforeEach(() => {
-		const ctx = loadScript();
-		BankAccount = ctx.BankAccount;
+		({ BankAccount } = loadScript());
 		account = new BankAccount();
 	});
 
@@ -53,6 +52,39 @@ describe("Bank Account", () => {
 
 	it("should have a listAllWithdrawals method", () => {
 		expect(typeof account.listAllWithdrawals).toBe("function");
+	});
+
+	describe("myAccount instance", () => {
+		it("should exist as a BankAccount instance", () => {
+			const ctx = loadScript();
+			expect(ctx.myAccount).toBeDefined();
+		});
+
+		it("should have at least five transactions", () => {
+			const ctx = loadScript();
+			expect(ctx.myAccount.transactions.length).toBeGreaterThanOrEqual(5);
+		});
+
+		it("should have at least two deposits", () => {
+			const ctx = loadScript();
+			const deposits = ctx.myAccount.transactions.filter(
+				(t) => t.type === "deposit",
+			);
+			expect(deposits.length).toBeGreaterThanOrEqual(2);
+		});
+
+		it("should have at least two withdrawals", () => {
+			const ctx = loadScript();
+			const withdrawals = ctx.myAccount.transactions.filter(
+				(t) => t.type === "withdraw",
+			);
+			expect(withdrawals.length).toBeGreaterThanOrEqual(2);
+		});
+
+		it("should have a balance greater than $100", () => {
+			const ctx = loadScript();
+			expect(ctx.myAccount.balance).toBeGreaterThan(100);
+		});
 	});
 
 	describe("checkBalance", () => {

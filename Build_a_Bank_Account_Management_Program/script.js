@@ -40,3 +40,16 @@ class BankAccount {
 		return `Withdrawals: ${withdrawals.join(",")}`;
 	}
 }
+
+const DEPOSIT_1 = 500;
+const DEPOSIT_2 = 200;
+const DEPOSIT_3 = 100;
+const WITHDRAWAL_1 = 150;
+const WITHDRAWAL_2 = 50;
+
+const myAccount = new BankAccount();
+myAccount.deposit(DEPOSIT_1);
+myAccount.deposit(DEPOSIT_2);
+myAccount.deposit(DEPOSIT_3);
+myAccount.withdraw(WITHDRAWAL_1);
+myAccount.withdraw(WITHDRAWAL_2);
