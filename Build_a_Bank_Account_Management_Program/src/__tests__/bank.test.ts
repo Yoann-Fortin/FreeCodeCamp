@@ -21,43 +21,31 @@ describe("BankAccount", () => {
 			);
 		});
 
-		it("should reject negative amount", () => {
-			expect(account.deposit(-50)).toBe(
-				"Deposit amount must be greater than zero.",
-			);
-		});
-
-		it("should reject zero amount", () => {
-			expect(account.deposit(0)).toBe(
+		it.each([[-50], [0]])("should reject deposit of %d", (amount) => {
+			expect(account.deposit(amount)).toBe(
 				"Deposit amount must be greater than zero.",
 			);
 		});
 	});
 
 	describe("withdraw", () => {
-		it("should reject when balance insufficient", () => {
-			account.deposit(100);
-			expect(account.withdraw(150)).toBe(
-				"Insufficient balance or invalid amount.",
-			);
-		});
-
-		it("should reject negative amount", () => {
-			expect(account.withdraw(-50)).toBe(
-				"Insufficient balance or invalid amount.",
-			);
-		});
-
-		it("should reject zero amount", () => {
-			expect(account.withdraw(0)).toBe(
-				"Insufficient balance or invalid amount.",
-			);
-		});
-
 		it("should withdraw and return success message", () => {
 			account.deposit(200);
 			expect(account.withdraw(150)).toBe(
 				"Successfully withdrew $150. New balance: $50",
+			);
+		});
+
+		it.each([[-50], [0]])("should reject withdrawal of %d", (amount) => {
+			expect(account.withdraw(amount)).toBe(
+				"Insufficient balance or invalid amount.",
+			);
+		});
+
+		it("should reject when balance insufficient", () => {
+			account.deposit(100);
+			expect(account.withdraw(150)).toBe(
+				"Insufficient balance or invalid amount.",
 			);
 		});
 	});
