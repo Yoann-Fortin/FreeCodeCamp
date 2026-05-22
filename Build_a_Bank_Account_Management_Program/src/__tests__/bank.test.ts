@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { BankAccount } from "../bank-account.ts";
+import { InMemoryTransactionStore } from "../adapters/in-memory-transaction-store.ts";
+import { BankAccount } from "../domain/bank-account.ts";
 
 describe("BankAccount", () => {
 	let account: BankAccount;
 
 	beforeEach(() => {
-		account = new BankAccount();
+		account = new BankAccount(new InMemoryTransactionStore());
 	});
 
 	it("should have balance 0 and empty transactions by default", () => {

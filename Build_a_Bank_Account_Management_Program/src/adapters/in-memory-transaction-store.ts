@@ -1,6 +1,7 @@
-import type { Command } from "./command.ts";
+import type { Command } from "../domain/command.ts";
+import type { TransactionStore } from "../ports/transaction-store.ts";
 
-export class TransactionHistory {
+export class InMemoryTransactionStore implements TransactionStore {
 	private readonly history: Command[] = [];
 
 	execute(command: Command): void {

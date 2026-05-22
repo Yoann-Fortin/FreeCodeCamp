@@ -1,9 +1,9 @@
+import type { TransactionStore } from "../ports/transaction-store.ts";
 import { DepositCommand } from "./deposit-command.ts";
 import { AccountMemento } from "./memento.ts";
 import { MementoCaretaker } from "./memento-caretaker.ts";
 import { PositiveAmountValidator } from "./positive-amount-validator.ts";
 import { SufficientBalanceValidator } from "./sufficient-balance-validator.ts";
-import { TransactionHistory } from "./transaction-history.ts";
 import type { Validator } from "./validator.ts";
 import { WithdrawCommand } from "./withdraw-command.ts";
 
@@ -22,13 +22,17 @@ function buildWithdrawChain(): Validator {
 
 export class BankAccount {
 	balance = 0;
-	private readonly history = new TransactionHistory();
+	private readonly store: TransactionStore;
 	private readonly caretaker = new MementoCaretaker();
 	private readonly depositChain = buildDepositChain();
 	private readonly withdrawChain = buildWithdrawChain();
 
+	constructor(store: TransactionStore) {
+		this.store = store;
+	}
+
 	private saveSnapshot(): void {
-		this.caretaker.save(new AccountMemento(this.balance, this.history.all()));
+		this.caretaker.save(new AccountMemento(this.balance, this.store.all()));
 	}
 
 	deposit(amount: number): string {
@@ -37,7 +41,7 @@ export class BankAccount {
 			return error;
 		}
 		this.saveSnapshot();
-		this.history.execute(new DepositCommand(this, amount));
+		this.store.execute(new DepositCommand(this, amount));
 		return `Successfully deposited $${amount}. New balance: $${this.balance}`;
 	}
 
@@ -50,12 +54,12 @@ export class BankAccount {
 			return error;
 		}
 		this.saveSnapshot();
-		this.history.execute(new WithdrawCommand(this, amount));
+		this.store.execute(new WithdrawCommand(this, amount));
 		return `Successfully withdrew $${amount}. New balance: $${this.balance}`;
 	}
 
 	undoLast(): string {
-		const command = this.history.undoLast();
+		const command = this.store.undoLast();
 		if (!command) {
 			return "No transactions to undo.";
 		}
@@ -76,16 +80,16 @@ export class BankAccount {
 	}
 
 	listAllDeposits(): string {
-		const amounts = this.history.filterByType("deposit").map((c) => c.amount);
+		const amounts = this.store.filterByType("deposit").map((c) => c.amount);
 		return `Deposits: ${amounts.join(",")}`;
 	}
 
 	listAllWithdrawals(): string {
-		const amounts = this.history.filterByType("withdraw").map((c) => c.amount);
+		const amounts = this.store.filterByType("withdraw").map((c) => c.amount);
 		return `Withdrawals: ${amounts.join(",")}`;
 	}
 
 	get transactions(): { type: string; amount: number }[] {
-		return this.history.all().map((c) => ({ type: c.type, amount: c.amount }));
+		return this.store.all().map((c) => ({ type: c.type, amount: c.amount }));
 	}
 }
