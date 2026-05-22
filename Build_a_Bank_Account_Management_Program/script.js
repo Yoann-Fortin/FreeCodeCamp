@@ -23,11 +23,20 @@ class BankAccount {
 	}
 
 	checkBalance() {
+		return `Current balance: $${this.balance}`;
 	}
 
 	listAllDeposits() {
+		const deposits = this.transactions
+			.filter((t) => t.type === "deposit")
+			.map((t) => t.amount);
+		return `Deposits: ${deposits.join(",")}`;
 	}
 
 	listAllWithdrawals() {
+		const withdrawals = this.transactions
+			.filter((t) => t.type === "withdraw")
+			.map((t) => t.amount);
+		return `Withdrawals: ${withdrawals.join(",")}`;
 	}
 }

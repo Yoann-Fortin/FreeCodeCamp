@@ -55,6 +55,32 @@ describe("Bank Account", () => {
 		expect(typeof account.listAllWithdrawals).toBe("function");
 	});
 
+	describe("checkBalance", () => {
+		it("should return formatted balance", () => {
+			account.deposit(200);
+			expect(account.checkBalance()).toBe("Current balance: $200");
+		});
+	});
+
+	describe("listAllDeposits", () => {
+		it("should return all deposits formatted", () => {
+			account.deposit(10);
+			account.deposit(35);
+			account.deposit(90);
+			expect(account.listAllDeposits()).toBe("Deposits: 10,35,90");
+		});
+	});
+
+	describe("listAllWithdrawals", () => {
+		it("should return all withdrawals formatted", () => {
+			account.deposit(200);
+			account.withdraw(20);
+			account.withdraw(50);
+			account.withdraw(100);
+			expect(account.listAllWithdrawals()).toBe("Withdrawals: 20,50,100");
+		});
+	});
+
 	describe("withdraw", () => {
 		it("should reject when balance insufficient", () => {
 			account.deposit(100);
