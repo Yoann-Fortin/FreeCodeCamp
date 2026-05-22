@@ -1,55 +1,62 @@
-const API_BASE = "https://weather-proxy.freecodecamp.rocks/api/city";
+"use strict";
+(() => {
+  // Build_a_Weather_App/src/weather-api.ts
+  var API_BASE = "https://weather-proxy.freecodecamp.rocks/api/city";
+  async function getWeather(city) {
+    try {
+      const response = await fetch(`${API_BASE}/${city}`);
+      return await response.json();
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
-async function getWeather(city) {
-	try {
-		const response = await fetch(`${API_BASE}/${city}`);
-		return await response.json();
-	} catch (error) {
-		// biome-ignore lint/suspicious/noConsole: required by FreeCodeCamp
-		console.error(error);
-	}
-}
-
-function formatValue(value) {
-	if (value === undefined) {
-		return "N/A";
-	}
-	return String(value);
-}
-
-async function showWeather(city) {
-	const data = await getWeather(city);
-	if (!data) {
-		// biome-ignore lint/suspicious/noAlert: required by FreeCodeCamp
-		alert("Something went wrong, please try again later.");
-		return;
-	}
-	document.querySelector("#location").textContent = formatValue(data.name);
-	document.querySelector("#main-temperature").textContent = formatValue(
-		data.main?.temp,
-	);
-	document.querySelector("#feels-like").textContent = formatValue(
-		data.main?.feels_like,
-	);
-	document.querySelector("#humidity").textContent = formatValue(
-		data.main?.humidity,
-	);
-	document.querySelector("#wind").textContent = formatValue(data.wind?.speed);
-	document.querySelector("#wind-gust").textContent = formatValue(
-		data.wind?.gust,
-	);
-	document.querySelector("#weather-main").textContent = formatValue(
-		data.weather?.[0]?.main,
-	);
-	const icon = data.weather?.[0]?.icon;
-	if (icon) {
-		document.querySelector("#weather-icon").src = icon;
-	}
-}
-
-document.querySelector("#get-weather-btn").addEventListener("click", () => {
-	const city = document.querySelector("select").value;
-	if (city) {
-		showWeather(city);
-	}
-});
+  // Build_a_Weather_App/src/script.ts
+  function formatValue(value) {
+    if (value === void 0) {
+      return "N/A";
+    }
+    return String(value);
+  }
+  function setText(selector, value) {
+    const el = document.querySelector(selector);
+    if (el) {
+      el.textContent = formatValue(value);
+    }
+  }
+  async function showWeather(city) {
+    const data = await getWeather(city);
+    if (!data) {
+      alert("Something went wrong, please try again later.");
+      return;
+    }
+    setText("#location", data.name);
+    setText("#main-temperature", data.main?.temp);
+    setText("#feels-like", data.main?.feels_like);
+    setText("#humidity", data.main?.humidity);
+    setText("#wind", data.wind?.speed);
+    setText("#wind-gust", data.wind?.gust);
+    setText("#weather-main", data.weather?.[0]?.main);
+    const icon = data.weather?.[0]?.icon;
+    if (icon) {
+      const img = document.querySelector(
+        "#weather-icon"
+      );
+      if (img) {
+        img.src = icon;
+      }
+    }
+  }
+  window.getWeather = getWeather;
+  window.showWeather = showWeather;
+  var btn = document.querySelector("#get-weather-btn");
+  if (btn) {
+    btn.addEventListener("click", () => {
+      const select = document.querySelector("select");
+      const city = select?.value;
+      if (city) {
+        showWeather(city);
+      }
+    });
+  }
+})();

@@ -4,6 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
+		"build:weather": "tsc --noEmit && esbuild Build_a_Weather_App/src/script.ts --bundle --outfile=Build_a_Weather_App/script.js",
 		"test": "vitest"
 	},
 	"repository": {
@@ -20,7 +21,10 @@
 	"homepage": "https://github.com/Yoann-Fortin/FreeCodeCamp#readme",
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.15",
+		"@types/jsdom": "^28.0.3",
+		"esbuild": "^0.28.0",
 		"jsdom": "^29.1.1",
+		"typescript": "^6.0.3",
 		"vitest": "^4.1.7"
 	}
 }
