@@ -28,4 +28,31 @@ describe("Weather App", () => {
 		expect(btn).not.toBeNull();
 		expect(btn.tagName).toBe("BUTTON");
 	});
+
+	it("should have a select element", () => {
+		const select = window.document.querySelector("select");
+		expect(select).not.toBeNull();
+	});
+
+	it("should have an empty first option", () => {
+		const firstOption = window.document.querySelector("select option");
+		expect(firstOption.value).toBe("");
+		expect(firstOption.textContent).toBe("");
+	});
+
+	it("should have 6 city options", () => {
+		const options = window.document.querySelectorAll("select option");
+		const cities = [...options].slice(1).map((o) => o.textContent);
+		expect(cities).toEqual([
+			"New York",
+			"Los Angeles",
+			"Chicago",
+			"Paris",
+			"Tokyo",
+			"London",
+		]);
+		for (const option of [...options].slice(1)) {
+			expect(option.value).toBe(option.textContent.toLowerCase());
+		}
+	});
 });
