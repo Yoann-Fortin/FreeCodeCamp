@@ -1,16 +1,10 @@
+import { adaptWeather } from "./weather-adapter.ts";
 import { getWeather } from "./weather-api.ts";
 
-function formatValue(value: unknown): string {
-	if (value === undefined) {
-		return "N/A";
-	}
-	return String(value);
-}
-
-function setText(selector: string, value: unknown): void {
+function setText(selector: string, value: string): void {
 	const el = document.querySelector(selector);
 	if (el) {
-		el.textContent = formatValue(value);
+		el.textContent = value;
 	}
 }
 
@@ -21,20 +15,20 @@ async function showWeather(city: string): Promise<void> {
 		alert("Something went wrong, please try again later.");
 		return;
 	}
-	setText("#location", data.name);
-	setText("#main-temperature", data.main?.temp);
-	setText("#feels-like", data.main?.feels_like);
-	setText("#humidity", data.main?.humidity);
-	setText("#wind", data.wind?.speed);
-	setText("#wind-gust", data.wind?.gust);
-	setText("#weather-main", data.weather?.[0]?.main);
-	const icon = data.weather?.[0]?.icon;
-	if (icon) {
+	const weather = adaptWeather(data);
+	setText("#location", weather.location);
+	setText("#main-temperature", weather.temperature);
+	setText("#feels-like", weather.feelsLike);
+	setText("#humidity", weather.humidity);
+	setText("#wind", weather.windSpeed);
+	setText("#wind-gust", weather.windGust);
+	setText("#weather-main", weather.weatherType);
+	if (weather.icon) {
 		const img = document.querySelector(
 			"#weather-icon",
 		) as HTMLImageElement | null;
 		if (img) {
-			img.src = icon;
+			img.src = weather.icon;
 		}
 	}
 }

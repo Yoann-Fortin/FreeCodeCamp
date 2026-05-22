@@ -1,5 +1,25 @@
 "use strict";
 (() => {
+  // Build_a_Weather_App/src/weather-adapter.ts
+  function format(value) {
+    if (value === void 0) {
+      return "N/A";
+    }
+    return String(value);
+  }
+  function adaptWeather(data) {
+    return {
+      location: format(data.name),
+      temperature: format(data.main?.temp),
+      feelsLike: format(data.main?.feels_like),
+      humidity: format(data.main?.humidity),
+      windSpeed: format(data.wind?.speed),
+      windGust: format(data.wind?.gust),
+      weatherType: format(data.weather?.[0]?.main),
+      icon: data.weather?.[0]?.icon ?? ""
+    };
+  }
+
   // Build_a_Weather_App/src/weather-api.ts
   var API_BASE = "https://weather-proxy.freecodecamp.rocks/api/city";
   async function getWeather(city) {
@@ -12,16 +32,10 @@
   }
 
   // Build_a_Weather_App/src/script.ts
-  function formatValue(value) {
-    if (value === void 0) {
-      return "N/A";
-    }
-    return String(value);
-  }
   function setText(selector, value) {
     const el = document.querySelector(selector);
     if (el) {
-      el.textContent = formatValue(value);
+      el.textContent = value;
     }
   }
   async function showWeather(city) {
@@ -30,20 +44,20 @@
       alert("Something went wrong, please try again later.");
       return;
     }
-    setText("#location", data.name);
-    setText("#main-temperature", data.main?.temp);
-    setText("#feels-like", data.main?.feels_like);
-    setText("#humidity", data.main?.humidity);
-    setText("#wind", data.wind?.speed);
-    setText("#wind-gust", data.wind?.gust);
-    setText("#weather-main", data.weather?.[0]?.main);
-    const icon = data.weather?.[0]?.icon;
-    if (icon) {
+    const weather = adaptWeather(data);
+    setText("#location", weather.location);
+    setText("#main-temperature", weather.temperature);
+    setText("#feels-like", weather.feelsLike);
+    setText("#humidity", weather.humidity);
+    setText("#wind", weather.windSpeed);
+    setText("#wind-gust", weather.windGust);
+    setText("#weather-main", weather.weatherType);
+    if (weather.icon) {
       const img = document.querySelector(
         "#weather-icon"
       );
       if (img) {
-        img.src = icon;
+        img.src = weather.icon;
       }
     }
   }
