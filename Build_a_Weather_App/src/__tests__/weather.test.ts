@@ -8,23 +8,19 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const htmlFile = resolve(__dirname, "..", "..", "index.html");
 const scriptFile = resolve(__dirname, "..", "..", "script.js");
 
-interface WeatherWindow {
+interface AppWindow {
 	document: Document;
-	getWeather: (city: string) => Promise<unknown>;
-	showWeather: (city: string) => Promise<void>;
 	fetch: typeof fetch;
-	alert: (msg: string) => void;
-	console: Console;
 }
 
-let window: WeatherWindow;
+let window: AppWindow;
 
-function loadPage(): WeatherWindow {
+function loadPage(): AppWindow {
 	const html = readFileSync(htmlFile, "utf-8");
 	const dom = new JSDOM(html, { runScripts: "dangerously" });
 	const scriptContent = readFileSync(scriptFile, "utf-8");
 	dom.window.eval(scriptContent);
-	return dom.window as unknown as WeatherWindow;
+	return dom.window as unknown as AppWindow;
 }
 
 function stubFetch(data: unknown): void {
@@ -38,6 +34,25 @@ function stubFetch(data: unknown): void {
 function stubFetchError(): void {
 	window.fetch = (): Promise<Response> =>
 		Promise.reject(new Error("Network error"));
+}
+
+function selectCity(city: string): void {
+	const select = window.document.querySelector("select") as HTMLSelectElement;
+	select.value = city;
+}
+
+async function clickButton(): Promise<void> {
+	const btn = window.document.querySelector(
+		"#get-weather-btn",
+	) as HTMLButtonElement;
+	btn.click();
+	await new Promise((r) => {
+		setTimeout(r, 0);
+	});
+}
+
+function getText(selector: string): string {
+	return window.document.querySelector(selector)?.textContent ?? "";
 }
 
 describe("Weather App", () => {
@@ -85,62 +100,29 @@ describe("Weather App", () => {
 			["wind-gust"],
 			["weather-main"],
 			["location"],
+			["error"],
 		])("should have element with id '%s'", (id) => {
 			expect(window.document.querySelector(`#${id}`)).not.toBeNull();
 		});
 	});
 
-	describe("getWeather", () => {
-		it("should be a function", () => {
-			expect(typeof window.getWeather).toBe("function");
-		});
-
-		it("should fetch and return weather data", async () => {
-			const fakeData = { name: "London", main: { temp: 15 } };
-			stubFetch(fakeData);
-			const result = await window.getWeather("london");
-			expect(result).toEqual(fakeData);
-		});
-
-		it("should return undefined on failure", async () => {
-			stubFetchError();
-			const result = await window.getWeather("london");
-			expect(result).toBeUndefined();
-		});
-	});
-
-	describe("showWeather", () => {
-		it("should be a function", () => {
-			expect(typeof window.showWeather).toBe("function");
-		});
-
-		it("should display weather data in elements", async () => {
+	describe("integration", () => {
+		it("should display weather data after clicking button", async () => {
 			stubFetch({
 				name: "London",
 				weather: [{ main: "Clear", icon: "icon.png" }],
 				main: { temp: 15, feels_like: 12, humidity: 60 },
 				wind: { speed: 5, gust: 8 },
 			});
-			await window.showWeather("london");
-			expect(window.document.querySelector("#location")!.textContent).toBe(
-				"London",
-			);
-			expect(
-				window.document.querySelector("#main-temperature")!.textContent,
-			).toBe("15");
-			expect(window.document.querySelector("#feels-like")!.textContent).toBe(
-				"12",
-			);
-			expect(window.document.querySelector("#humidity")!.textContent).toBe(
-				"60",
-			);
-			expect(window.document.querySelector("#wind")!.textContent).toBe("5");
-			expect(window.document.querySelector("#wind-gust")!.textContent).toBe(
-				"8",
-			);
-			expect(window.document.querySelector("#weather-main")!.textContent).toBe(
-				"Clear",
-			);
+			selectCity("london");
+			await clickButton();
+			expect(getText("#location")).toBe("London");
+			expect(getText("#main-temperature")).toBe("15");
+			expect(getText("#feels-like")).toBe("12");
+			expect(getText("#humidity")).toBe("60");
+			expect(getText("#wind")).toBe("5");
+			expect(getText("#wind-gust")).toBe("8");
+			expect(getText("#weather-main")).toBe("Clear");
 		});
 
 		it("should show N/A for undefined values", async () => {
@@ -150,23 +132,19 @@ describe("Weather App", () => {
 				main: { temp: 15 },
 				wind: {},
 			});
-			await window.showWeather("london");
-			expect(window.document.querySelector("#wind-gust")!.textContent).toBe(
-				"N/A",
-			);
-			expect(window.document.querySelector("#weather-main")!.textContent).toBe(
-				"N/A",
-			);
+			selectCity("london");
+			await clickButton();
+			expect(getText("#wind-gust")).toBe("N/A");
+			expect(getText("#weather-main")).toBe("N/A");
 		});
 
-		it("should alert on error", async () => {
-			let alertMsg = "";
-			window.alert = (msg: string): void => {
-				alertMsg = msg;
-			};
+		it("should show error message on failure", async () => {
 			stubFetchError();
-			await window.showWeather("paris");
-			expect(alertMsg).toBe("Something went wrong, please try again later.");
+			selectCity("paris");
+			await clickButton();
+			expect(getText("#error")).toBe(
+				"Something went wrong, please try again later.",
+			);
 		});
 	});
 });
