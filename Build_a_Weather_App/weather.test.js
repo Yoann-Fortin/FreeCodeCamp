@@ -40,6 +40,23 @@ describe("Weather App", () => {
 		expect(firstOption.textContent).toBe("");
 	});
 
+	it.each([
+		["weather-icon", "IMG"],
+		["main-temperature"],
+		["feels-like"],
+		["humidity"],
+		["wind"],
+		["wind-gust"],
+		["weather-main"],
+		["location"],
+	])("should have element with id '%s'", (id, tag) => {
+		const el = window.document.querySelector(`#${id}`);
+		expect(el).not.toBeNull();
+		if (tag) {
+			expect(el.tagName).toBe(tag);
+		}
+	});
+
 	it("should have 6 city options", () => {
 		const options = window.document.querySelectorAll("select option");
 		const cities = [...options].slice(1).map((o) => o.textContent);
