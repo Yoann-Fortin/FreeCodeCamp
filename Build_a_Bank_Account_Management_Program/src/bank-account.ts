@@ -1,21 +1,40 @@
 import { DepositCommand } from "./deposit-command.ts";
 import { AccountMemento } from "./memento.ts";
 import { MementoCaretaker } from "./memento-caretaker.ts";
+import { PositiveAmountValidator } from "./positive-amount-validator.ts";
+import { SufficientBalanceValidator } from "./sufficient-balance-validator.ts";
 import { TransactionHistory } from "./transaction-history.ts";
+import type { Validator } from "./validator.ts";
 import { WithdrawCommand } from "./withdraw-command.ts";
+
+const DEPOSIT_ERROR = "Deposit amount must be greater than zero.";
+const WITHDRAW_ERROR = "Insufficient balance or invalid amount.";
+
+function buildDepositChain(): Validator {
+	return new PositiveAmountValidator(DEPOSIT_ERROR);
+}
+
+function buildWithdrawChain(): Validator {
+	const positiveCheck = new PositiveAmountValidator(WITHDRAW_ERROR);
+	positiveCheck.setNext(new SufficientBalanceValidator(WITHDRAW_ERROR));
+	return positiveCheck;
+}
 
 export class BankAccount {
 	balance = 0;
 	private readonly history = new TransactionHistory();
 	private readonly caretaker = new MementoCaretaker();
+	private readonly depositChain = buildDepositChain();
+	private readonly withdrawChain = buildWithdrawChain();
 
 	private saveSnapshot(): void {
 		this.caretaker.save(new AccountMemento(this.balance, this.history.all()));
 	}
 
 	deposit(amount: number): string {
-		if (amount <= 0) {
-			return "Deposit amount must be greater than zero.";
+		const error = this.depositChain.validate({ amount, balance: this.balance });
+		if (error) {
+			return error;
 		}
 		this.saveSnapshot();
 		this.history.execute(new DepositCommand(this, amount));
@@ -23,8 +42,12 @@ export class BankAccount {
 	}
 
 	withdraw(amount: number): string {
-		if (amount <= 0 || amount > this.balance) {
-			return "Insufficient balance or invalid amount.";
+		const error = this.withdrawChain.validate({
+			amount,
+			balance: this.balance,
+		});
+		if (error) {
+			return error;
 		}
 		this.saveSnapshot();
 		this.history.execute(new WithdrawCommand(this, amount));
