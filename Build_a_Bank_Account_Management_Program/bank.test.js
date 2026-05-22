@@ -55,6 +55,34 @@ describe("Bank Account", () => {
 		expect(typeof account.listAllWithdrawals).toBe("function");
 	});
 
+	describe("withdraw", () => {
+		it("should reject when balance insufficient", () => {
+			account.deposit(100);
+			expect(account.withdraw(150)).toBe(
+				"Insufficient balance or invalid amount.",
+			);
+		});
+
+		it("should reject negative amount", () => {
+			expect(account.withdraw(-50)).toBe(
+				"Insufficient balance or invalid amount.",
+			);
+		});
+
+		it("should reject zero amount", () => {
+			expect(account.withdraw(0)).toBe(
+				"Insufficient balance or invalid amount.",
+			);
+		});
+
+		it("should withdraw and return success message", () => {
+			account.deposit(200);
+			expect(account.withdraw(150)).toBe(
+				"Successfully withdrew $150. New balance: $50",
+			);
+		});
+	});
+
 	describe("deposit", () => {
 		it("should deposit and return success message", () => {
 			expect(account.deposit(100)).toBe(

@@ -14,6 +14,12 @@ class BankAccount {
 	}
 
 	withdraw(amount) {
+		if (amount <= 0 || amount > this.balance) {
+			return "Insufficient balance or invalid amount.";
+		}
+		this.transactions.push({ type: "withdraw", amount });
+		this.balance -= amount;
+		return `Successfully withdrew $${amount}. New balance: $${this.balance}`;
 	}
 
 	checkBalance() {
