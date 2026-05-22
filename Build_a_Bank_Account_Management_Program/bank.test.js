@@ -29,4 +29,29 @@ describe("Bank Account", () => {
 	it("should define a class named BankAccount", () => {
 		expect(typeof BankAccount).toBe("function");
 	});
+
+	it("should have balance 0 and empty transactions by default", () => {
+		expect(account.balance).toBe(0);
+		expect(account.transactions).toEqual([]);
+	});
+
+	it("should have a deposit method", () => {
+		expect(typeof account.deposit).toBe("function");
+	});
+
+	it("should have a withdraw method", () => {
+		expect(typeof account.withdraw).toBe("function");
+	});
+
+	it("should have a checkBalance method", () => {
+		expect(typeof account.checkBalance).toBe("function");
+	});
+
+	it("should have a listAllDeposits method", () => {
+		expect(typeof account.listAllDeposits).toBe("function");
+	});
+
+	it("should have a listAllWithdrawals method", () => {
+		expect(typeof account.listAllWithdrawals).toBe("function");
+	});
 });
