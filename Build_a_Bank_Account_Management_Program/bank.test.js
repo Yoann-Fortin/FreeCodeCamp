@@ -54,4 +54,24 @@ describe("Bank Account", () => {
 	it("should have a listAllWithdrawals method", () => {
 		expect(typeof account.listAllWithdrawals).toBe("function");
 	});
+
+	describe("deposit", () => {
+		it("should deposit and return success message", () => {
+			expect(account.deposit(100)).toBe(
+				"Successfully deposited $100. New balance: $100",
+			);
+		});
+
+		it("should reject negative amount", () => {
+			expect(account.deposit(-50)).toBe(
+				"Deposit amount must be greater than zero.",
+			);
+		});
+
+		it("should reject zero amount", () => {
+			expect(account.deposit(0)).toBe(
+				"Deposit amount must be greater than zero.",
+			);
+		});
+	});
 });
