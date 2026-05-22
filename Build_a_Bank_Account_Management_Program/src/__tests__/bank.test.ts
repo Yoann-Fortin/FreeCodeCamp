@@ -107,4 +107,26 @@ describe("BankAccount", () => {
 			expect(account.undoLast()).toBe("No transactions to undo.");
 		});
 	});
+
+	describe("restoreLastSnapshot", () => {
+		it("should restore balance to before last transaction", () => {
+			account.deposit(300);
+			account.deposit(100);
+			account.restoreLastSnapshot();
+			expect(account.balance).toBe(300);
+		});
+
+		it("should restore multiple times", () => {
+			account.deposit(300);
+			account.withdraw(100);
+			account.restoreLastSnapshot();
+			expect(account.balance).toBe(300);
+			account.restoreLastSnapshot();
+			expect(account.balance).toBe(0);
+		});
+
+		it("should return message when no snapshot to restore", () => {
+			expect(account.restoreLastSnapshot()).toBe("No snapshot to restore.");
+		});
+	});
 });
